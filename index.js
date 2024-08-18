@@ -69,3 +69,16 @@ app.get('/livrosGuardados', (req, res) => {
 app.get('/voltarHome', (req, res) => {
     res.redirect('/');
 })
+
+app.get('/deletar', (req, res) => {
+    const id = req.query.titulo;
+    const query = 'DELETE FROM livros_guardados WHERE titulo = ?';
+    con.query(query, id, (err, result) => {
+        if (err) {
+            console.log('Erro ao deletar livro:', err);
+        } else {
+            console.log('Livro deletado com sucesso');
+            res.redirect('/livrosGuardados');
+        }
+    });
+})
