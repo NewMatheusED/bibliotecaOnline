@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Livros guardados</h1>
+    <form action="/voltarHome">
+        <input type="submit" value="Voltar à página inicial">
+    </form>
+    <% for(item in data) { %>
+        <h2><%= data[item].titulo %></h2>
+        <% if (data[item].url_imagem == 'false') { %>
+            <p>Não há imagem disponível</p>
+        <% } else { %>
+            <img src="<%= data[item].url_imagem %>" alt="">
+        <% } %>
+        <h3><%= data[item].autor %></h3>
+        <hr>
+    <% } %>
+</body>
+</html>
