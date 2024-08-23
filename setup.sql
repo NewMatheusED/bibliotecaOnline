@@ -4,3 +4,10 @@ CREATE TABLE IF NOT EXISTS livros_guardados (
     autor VARCHAR(100) NOT NULL,
     url_imagem VARCHAR(255) NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS usuarios (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    user VARCHAR(100) NOT NULL,
+    pass VARCHAR(255) NOT NULL
+);
