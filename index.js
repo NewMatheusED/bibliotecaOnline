@@ -7,6 +7,8 @@ const bodyParser = require('body-parser');
 const axios = require('axios');
 const con = require('./db');
 const bcrypt = require('bcrypt')
+const User = require('./userModels')
+const Book = require('./bookModels')
 
 const key = process.env.GOOGLE_BOOKS_API_KEY;
 
@@ -50,9 +52,7 @@ app.post('/registrar', (req, res) => {
             console.log('Erro ao criptografar senha:', err);
             res.status(500).send('An error occurred while encrypting password');
         } else {
-            const sql = `INSERT INTO usuarios (name, user, pass) VALUES (?, ?, ?)`;
-            const values = [name, email, hash];
-            con.query(sql, values, (err, result) => {
+            User.createUser(name, email, hash, (err, result) => {
                 if (err) {
                     console.log('Erro ao inserir usuário:', err);
                     res.status(500).send('An error occurred while inserting user');
@@ -69,8 +69,7 @@ app.post('/logar', (req, res) => {
     let email = req.body.email;
     let pass = req.body.password;
 
-    const sql = `SELECT * FROM usuarios WHERE user = ?`;
-    con.query(sql, [email], (err, result) => {
+    User.getUser(email, (err, result) => {
         if (err) {
             console.log('Erro ao buscar usuário:', err);
             res.status(500).send('An error occurred while fetching user');
@@ -120,9 +119,7 @@ app.post('/guardar', (req, res) => {
     let author = req.body.author;
     let image = req.body.image;
 
-    const sql = `INSERT INTO livros_guardados (titulo, autor, url_imagem) VALUES (?, ?, ?)`;
-    const values = [title, author, image];
-    con.query(sql, values, (err, result) => {
+    Book.createBook(title, author, image, (err, result) => {
         if (err) {
             console.log('Erro ao inserir dados:', err);
             res.status(500).send('An error occurred while inserting data');
@@ -134,8 +131,7 @@ app.post('/guardar', (req, res) => {
 });
 
 app.get('/livrosGuardados', (req, res) => {
-    const sql = `SELECT * FROM livros_guardados`;
-    con.query(sql, (err, result) => {
+    Book.listBooks((err, result) => {
         if (err) {
             console.log('Erro ao buscar dados:', err);
             res.status(500).send('An error occurred while fetching data');
@@ -151,8 +147,7 @@ app.get('/voltarHome', (req, res) => {
 
 app.delete('/deletar', (req, res) => {
     const id = req.body.titulo;
-    const query = 'DELETE FROM livros_guardados WHERE titulo = ?';
-    con.query(query, id, (err, result) => {
+    Book.deleteBook(id, (err, result) => {
         if (err) {
             console.log('Erro ao deletar livro:', err);
             res.status(500).send('An error occurred while deleting book');
