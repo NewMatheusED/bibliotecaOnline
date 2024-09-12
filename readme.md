@@ -40,7 +40,6 @@ SESSION_SECRET=sua_chave_secreta_para_sessão
 ## Como Executar o Projeto
 
 1. Clone o repositório para a sua máquina local.
-2. Navegue até a pasta do projeto e execute `npm install` para instalar as dependências.
-3. Execute `node setup.js` para criar a tabela utilizada no projeto.
-4. Execute `nodemon index.js` para iniciar o servidor. Caso apresente erro, refaça a instalação do nodemon com o comando `npm install nodemon`, caso persista, execute `node index.js`.
-5. Abra um navegador e vá para `http://localhost:3000` para ver a aplicação em funcionamento.
+2. Execute `npm run setup` para configurar o projeto na sua máquina.
+3. Execute `npm run start` para iniciar o servidor.
+4. Abra um navegador e vá para `http://localhost:3000` para ver a aplicação em funcionamento.
