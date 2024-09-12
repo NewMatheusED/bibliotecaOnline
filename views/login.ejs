@@ -7,7 +7,7 @@
 </head>
 <body>
     <h1>Logue na plataforma</h1>
-    <form action="/logar" method="post">
+    <form action="/login" method="post">
     <label for="email">Email:</label>
     <input type="text" id="email" name="email" required>
     <br>
@@ -15,6 +15,10 @@
     <input type="password" id="password" name="password" required>
     <br>
     <input type="submit" value="Login">
+    <p>Não tem conta ainda? Crie uma <a href="/register">aqui</a></p>
+    <% if (message) { %>
+        <p><%= message %></p>
+    <% } %>
     </form>
 </body>
 </html>

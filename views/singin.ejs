@@ -17,6 +17,10 @@
         <input type="password" id="password" name="password" required>
         <br>
         <input type="submit" value="Sign In">
+        <p>Já possui conta? Entre <a href="/login">aqui</a></p>
+        <% if (message) { %>
+            <p><%= message %></p>
+        <% } %>
     </form>
 </body>
 </html>

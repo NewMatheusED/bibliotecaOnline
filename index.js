@@ -1,14 +1,18 @@
-require('dotenv').config()
+require('dotenv').config();
+require('./passport');
 const express = require('express');
 const port = 3000;
 const app = express();
 const path = require('path');
 const bodyParser = require('body-parser');
 const axios = require('axios');
-const con = require('./db');
 const bcrypt = require('bcrypt')
-const User = require('./userModels')
-const Book = require('./bookModels')
+const User = require('./models/userModels')
+const Book = require('./models/bookModels')
+const passport = require('passport');
+const session = require('express-session');
+const e = require('express');
+const { render } = require('ejs');
 
 const key = process.env.GOOGLE_BOOKS_API_KEY;
 
@@ -19,14 +23,23 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
+app.use(session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
 app.listen(port, () => {
     console.log(`Server is running on link: http://localhost:${port}`);
 })
 
-function renderMainPage(res, extra) {
-    axios.get(`https://www.googleapis.com/books/v1/volumes?q=javascript&key=${key}`)
+function renderMainPage(req, res, extra, message, bookQuery = req.session.lastSearch || 'javascript') { 
+    axios.get(`https://www.googleapis.com/books/v1/volumes?q=${bookQuery}&key=${key}`)
     .then((response) => {
-        res.render('index', { data: response.data.items, user: extra });
+        res.render('index', { data: response.data.items, user: extra, message: message});
     })
     .catch((error) => {
         console.log(error);
@@ -34,13 +47,13 @@ function renderMainPage(res, extra) {
     });
 }
 
-app.get('/login', (req, res) => {
-    res.render('login')
-})
-
-app.get('/register', (req, res) => {
-    res.render('singin')
-})
+function ensureAuthenticated(req, res, next) {
+    if (req.isAuthenticated()) {
+        return next();
+    } else {
+        res.redirect('/login');
+    }
+}
 
 app.post('/registrar', (req, res) => {
     let name = req.body.name;
@@ -53,68 +66,68 @@ app.post('/registrar', (req, res) => {
             res.status(500).send('An error occurred while encrypting password');
         } else {
             User.createUser(name, email, hash, (err, result) => {
-                if (err) {
-                    console.log('Erro ao inserir usuário:', err);
-                    res.status(500).send('An error occurred while inserting user');
+                if (err) {  
+                    if(err.errorCode == '1001') {
+                        console.log('Usuário já cadastrado');
+                        res.render('singin', { message: 'Email já cadastrado' });
+                    } else {
+                        console.log('Erro ao inserir usuário:', err);
+                        res.status(500).send('An error occurred while inserting user');
+                    }
                 } else {
                     console.log('Usuário inserido com sucesso');
-                    renderMainPage(res, name)
+                    User.getUser(email, (err, user) => {
+                        renderMainPage(req, res, user[0], '');
+                    })
                 }
             });
         }
     });
 });
 
-app.post('/logar', (req, res) => {
-    let email = req.body.email;
-    let pass = req.body.password;
-
-    User.getUser(email, (err, result) => {
-        if (err) {
-            console.log('Erro ao buscar usuário:', err);
-            res.status(500).send('An error occurred while fetching user');
-        } else {
-            if (result.length === 0) {
-                console.log('Usuário não encontrado');
-                res.status(404).send('User not found');
-            } else {
-                const user = result[0];
-                bcrypt.compare(pass, user.pass, (err, isMatch) => {
-                    if (err) {
-                        console.log('Erro ao comparar senhas:', err);
-                        res.status(500).send('An error occurred while comparing passwords');
-                    } else {
-                        if (isMatch) {
-                            console.log('Senha correta');
-                            renderMainPage(res, user.name);
-                        } else {
-                            console.log('Senha incorreta');
-                            res.status(401).send('Incorrect password');
-                        }
-                    }
-                });
-            }
+app.post('/login', function(req, res, next) {
+    passport.authenticate('login', function(err, user, info) {
+      if (err) {
+        if (err.errorCode === 1002) {
+            return res.redirect('/login?error=true');
         }
+        return next(err);
+      }
+      if (!user) { return res.redirect('/login?error=true'); }
+      req.logIn(user, function(err) {
+        if (err) { return next(err); }
+        return res.redirect('/');
+      });
+    })(req, res, next);
+});
+
+app.get('/logout', (req, res, next) => { // pelo amor de deus, não mexe nisso, demorou para funcionar
+    req.session.destroy(function (err) {
+        if (err) { return next(err); }
+        req.logout(() => {});
+        res.redirect('login');
     });
 });
 
-app.get('/', (req, res) => {
-    renderMainPage(res, '')
+app.get('/', ensureAuthenticated, (req, res) => {
+    renderMainPage(req, res, req.user[0], '');
+});
+
+app.get('/login', (req, res) => {
+    res.render('login', { message: req.query.error ? 'Usuário ou senha inválidos' : '' });
 })
 
-app.get('/search', (req, res) => {
+app.get('/register', (req, res) => {
+    res.render('singin', { message: '' });
+})
+
+app.get('/search', ensureAuthenticated, (req, res) => {
     let searchTerm = req.query.q;
-    axios.get(`https://www.googleapis.com/books/v1/volumes?q=${searchTerm}&key=${key}`)
-    .then((response) => {
-        res.render('index', { data: response.data.items });
-    })
-    .catch((error) => {
-        console.log(error);
-        res.status(500).send('An error occurred while fetching books');
-    })
+    req.session.lastSearch = searchTerm;
+    renderMainPage(req, res, req.user[0], '', searchTerm);
 })
 
-app.post('/guardar', (req, res) => {
+app.post('/guardar', ensureAuthenticated, (req, res) => {
     let title = req.body.title;
     let author = req.body.author;
     let image = req.body.image;
@@ -122,7 +135,11 @@ app.post('/guardar', (req, res) => {
     Book.createBook(title, author, image, (err, result) => {
         if (err) {
             console.log('Erro ao inserir dados:', err);
-            res.status(500).send('An error occurred while inserting data');
+            if (err.errorCode === 1001) {
+                renderMainPage(req, res, req.user[0], 'Livro já guardado');
+            } else {
+                renderMainPage(req, res, req.user[0], 'Ocorreu um erro');
+            }
         } else {
             console.log('Dados inseridos com sucesso');
             res.redirect('/');
@@ -130,7 +147,7 @@ app.post('/guardar', (req, res) => {
     });
 });
 
-app.get('/livrosGuardados', (req, res) => {
+app.get('/livrosGuardados', ensureAuthenticated, (req, res) => {
     Book.listBooks((err, result) => {
         if (err) {
             console.log('Erro ao buscar dados:', err);
@@ -141,11 +158,11 @@ app.get('/livrosGuardados', (req, res) => {
     });
 })
 
-app.get('/voltarHome', (req, res) => {
+app.get('/voltarHome', ensureAuthenticated, (req, res) => {
     res.redirect('/');
 })
 
-app.delete('/deletar', (req, res) => {
+app.post('/deletar', ensureAuthenticated, (req, res) => {
     const id = req.body.titulo;
     Book.deleteBook(id, (err, result) => {
         if (err) {
