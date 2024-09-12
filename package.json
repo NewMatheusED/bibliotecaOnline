@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "setup": "npm install && node setup.js",
-    "start": "node index.js"
+    "start": "node index.js",
+    "vercel-build": "npm install && node setup.js"
   },
   "author": "",
   "license": "ISC",
