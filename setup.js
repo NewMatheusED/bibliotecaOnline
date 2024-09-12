@@ -15,24 +15,26 @@ const sql = postgres({
     connection: {
       options: `project=${ENDPOINT_ID}`,
     },
-  });
+});
 
-  async function getPgVersion() {
+async function getPgVersion() {
     const result = await sql`select version()`;
     console.log(result);
-  }
+}
   
-  getPgVersion();
+getPgVersion();
 
-fs.readFile('setup.sql', 'utf8', (err, data) => {
+fs.readFile('setup.sql', 'utf8', async (err, data) => {
     if (err) {
         console.log('Erro ao ler o arquivo SQL:', err);
     } else {
-        con.query(data, (err, results) => {
-            if (err) {
-                console.log('Erro ao executar o arquivo SQL:', err);
-            }
-            con.end();
-        });
+        try {
+            const result = await sql.unsafe(data);
+            console.log('Arquivo SQL executado com sucesso:', result);
+        } catch (err) {
+            console.log('Erro ao executar o arquivo SQL:', err);
+        } finally {
+            await sql.end();
+        }
     }
 });

@@ -2,7 +2,7 @@ const con = require('../db');
 
 module.exports = {
     createUser: function(name, email, password, callback) {
-        const checkSql = `SELECT * FROM usuarios WHERE user = $1`;
+        const checkSql = `SELECT * FROM usuarios WHERE username = $1`;
         con.query(checkSql, [email], (err, result) => {
             if (err) {
                 return callback(err);
@@ -10,7 +10,7 @@ module.exports = {
             if (result.rows.length > 0) {
                 return callback({ error: 'Usuário já cadastrado', errorCode: 1001 });
             }
-            const sql = `INSERT INTO usuarios (name, user, password) VALUES ($1, $2, $3)`;
+            const sql = `INSERT INTO usuarios (name, username, password) VALUES ($1, $2, $3)`;
             const values = [name, email, password];
             con.query(sql, values, callback);
         });
@@ -27,7 +27,7 @@ module.exports = {
     },
 
     getUser: function(email, callback) {
-        const sql = `SELECT * FROM usuarios WHERE user = $1`;
+        const sql = `SELECT * FROM usuarios WHERE username = $1`;
         con.query(sql, [email], (err, result) => {
             if (err) {
                 return callback(err);
