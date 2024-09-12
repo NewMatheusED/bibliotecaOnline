@@ -1,11 +1,11 @@
-const mysql = require('mysql2');
+const { Client } = require('pg');
 require('dotenv').config();
 
-const con = mysql.createConnection({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
+const con = new Client({
+    connectionString: process.env.POSTGRES_URL,
+    ssl: {
+        rejectUnauthorized: false
+    }
 });
 
 con.connect((err) => {

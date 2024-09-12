@@ -1,13 +1,14 @@
-// setup.js
-const mysql = require('mysql2');
 const fs = require('fs');
+const { Client } = require('pg');
 
-const con = mysql.createConnection({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
+const con = new Client({
+    connectionString: process.env.POSTGRES_URL,
+    ssl: {
+        rejectUnauthorized: false
+    }
 });
+
+con.connect();
 
 fs.readFile('setup.sql', 'utf8', (err, data) => {
     if (err) {
@@ -16,9 +17,8 @@ fs.readFile('setup.sql', 'utf8', (err, data) => {
         con.query(data, (err, results) => {
             if (err) {
                 console.log('Erro ao executar o arquivo SQL:', err);
-            } else {
-                console.log('Tabelas criadas com sucesso');
             }
+            con.end();
         });
     }
 });
