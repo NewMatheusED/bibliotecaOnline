@@ -1,19 +1,30 @@
-const { Client } = require('pg');
+const postgres = require('postgres');
 require('dotenv').config();
 
-const con = new Client({
-    connectionString: process.env.POSTGRES_URL,
-    ssl: {
-        rejectUnauthorized: false
-    }
-});
+let { PGHOST, PGDATABASE, PGUSER, PGPASSWORD, ENDPOINT_ID } = process.env;
+PGPASSWORD = decodeURIComponent(PGPASSWORD);
 
-con.connect((err) => {
-    if (err) {
-        console.log('Erro ao conectar ao banco de dados:', err);
-    } else {
-        console.log('Conectado ao banco de dados');
-    }
-});
+const sql = postgres({
+    host: PGHOST,
+    database: PGDATABASE,
+    username: PGUSER,
+    password: PGPASSWORD,
+    port: 5432,
+    ssl: 'require',
+    connection: {
+      options: `project=${ENDPOINT_ID}`,
+    },
+  });
 
-module.exports = con;
+  async function getPgVersion() {
+    try {
+        await sql.connect();
+        console.log('Connected to PostgreSQL database');
+    } catch (error) {
+        console.error('Failed to connect to PostgreSQL database:', error);
+    }
+  }
+  
+  getPgVersion();
+
+module.exports = sql;
