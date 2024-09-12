@@ -9,13 +9,20 @@ Este projeto é uma aplicação web que permite aos usuários pesquisar livros u
 - **Pesquisa de livros**: Os usuários podem pesquisar livros por título, autor ou outros termos de pesquisa. Os resultados da pesquisa são exibidos na página inicial.
 - **Armazenamento de livros**: Os usuários podem escolher livros dos resultados da pesquisa para guardar em uma base de dados local. Os livros guardados podem ser visualizados em uma página separada.
 - **Redirecionamento para a página inicial**: A partir da página de livros guardados, os usuários podem voltar para a página inicial para realizar uma nova pesquisa.
+- **Lembrar última pesquisa**: A aplicação agora lembra a última pesquisa realizada pelo usuário, mesmo após guardar um livro ou visitar a página de livros guardados.
 
 ## Tecnologias Utilizadas
 
-- Node.js e Express.js para o backend
-- EJS para a visualização de templates
-- MySQL para a base de dados
-- Axios para fazer requisições à API Google Books
+## Tecnologias Utilizadas
+
+- **Backend**: Node.js e Express.js
+- **Template Engine**: EJS
+- **Base de Dados**: MySQL
+- **Requisições HTTP**: Axios para fazer requisições à API Google Books
+- **Autenticação**: Passport.js para autenticação local
+- **Hash de Senha**: bcrypt.js para hash e verificação de senha
+- **Gerenciamento de Sessão**: express-session para gerenciar sessões de usuário
+- **Validação de Dados**: express-validator para validar e sanitizar dados de entrada
 
 ## Configuração
 
@@ -27,6 +34,7 @@ DB_HOST=localhost
 DB_USER=seu_usuario_do_banco_de_dados
 DB_PASSWORD=sua_senha_do_banco_de_dados
 DB_NAME=nome_do_seu_banco_de_dados
+SESSION_SECRET=sua_chave_secreta_para_sessão
 ```
 
 ## Como Executar o Projeto
