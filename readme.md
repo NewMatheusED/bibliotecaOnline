@@ -17,7 +17,7 @@ Este projeto é uma aplicação web que permite aos usuários pesquisar livros u
 
 - **Backend**: Node.js e Express.js
 - **Template Engine**: EJS
-- **Base de Dados**: MySQL
+- **Base de Dados**: Postgres
 - **Requisições HTTP**: Axios para fazer requisições à API Google Books
 - **Autenticação**: Passport.js para autenticação local
 - **Hash de Senha**: bcrypt.js para hash e verificação de senha
@@ -29,17 +29,18 @@ Este projeto é uma aplicação web que permite aos usuários pesquisar livros u
 Para executar este projeto localmente, você precisará criar um arquivo `.env` na raiz do projeto com as seguintes variáveis de ambiente:
 
 ```properties
-GOOGLE_BOOKS_API_KEY=sua_chave_da_api
-DB_HOST=localhost
-DB_USER=seu_usuario_do_banco_de_dados
-DB_PASSWORD=sua_senha_do_banco_de_dados
-DB_NAME=nome_do_seu_banco_de_dados
-SESSION_SECRET=sua_chave_secreta_para_sessão
+GOOGLE_BOOKS_API_KEY='your_google_books_api_key'
+SESSION_SECRET='your_session_secret'
+PGHOST='your_postgresql_host'
+PGDATABASE='your_postgresql_database'
+PGUSER='your_postgresql_username'
+PGPASSWORD='your_postgresql_password'
+ENDPOINT_ID='your_endpoint_id'
 ```
 
 ## Como Executar o Projeto
 
 1. Clone o repositório para a sua máquina local.
-2. Execute `npm run setup` para configurar o projeto na sua máquina.
-3. Execute `npm run start` para iniciar o servidor.
-4. Abra um navegador e vá para `http://localhost:3000` para ver a aplicação em funcionamento.
+2. Execute `npm run vercel-build` para configurar o projeto na sua máquina.
+3. Execute `npm run dev` para iniciar o servidor.
+4. Abra um navegador e vá para o link disponibilizado no console para ver a aplicação em funcionamento.
