@@ -1,0 +1,151 @@
+* {
+    padding: 0;
+    margin: 0;
+    font-family: Arial;
+    box-sizing: border-box; 
+}
+
+:root {
+    --formBg: #d6d6d6;
+}
+
+html,body {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    align-items: center;
+}
+
+.container {
+    padding: 0 2%;
+    text-align: center;
+    max-width: 1080px;
+    display: flex;
+    margin-left: 5%;
+}
+
+h1 {
+    text-transform: uppercase;
+    font-size: 16px;
+    margin: 20px 0;
+    margin-top: 10px;
+}
+
+form{
+    background-color: var(--formBg);
+    width: fit-content;
+    padding: 20px 50px;
+    padding-top: 10px;
+    border-radius: 25px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+    box-shadow: 5px 5px 5px 0 rgba(0, 0, 0, 0.3)
+}
+
+.img{
+    max-width: 150px; 
+    img {
+        width: 100%;
+    }
+}
+
+input {
+    height: 36px;
+    width: 260px;
+    border-radius: 20px;
+    background-color: rgb(204, 201, 201);
+    color: black;
+    margin: auto;
+    outline: none;
+}
+
+.email{
+    margin-bottom: 20px;
+    padding: 14px;  
+}
+
+.password{
+    margin-bottom: 20px;
+    padding: 14px;
+    font-size: 15px;   
+}
+
+input::placeholder{
+    color: rgb(53, 52, 52);
+}
+
+.login{
+    height: 36px;
+    width: 260px;
+    font-size: 15px;
+    background-color:aqua ;
+}
+
+.line {
+    margin: 25px 0;
+    margin-bottom: 10px;
+    border: 5px solid var(--formBg);
+    padding: 5px;
+    position: relative;
+    width: 100%;  
+    display: inline-block;
+    z-index: 9999;  
+    &:before {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 2px;
+        top: 50%;
+        left: 0;
+        transform: translateY(-50%);
+        background-color: #000;
+        border-radius: 10px;
+        display: inline-block;
+        z-index: -9;
+    }
+    &:after {
+        content: 'OU';
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        color: #000;
+        border: 8px solid var(--formBg);
+        background-color: var(--formBg);
+    }
+}
+
+a{
+    font-size: 15px;
+    text-decoration: none;
+    color: rgba(16, 57, 192, 0.781);
+    margin-bottom: 10px;   
+}
+
+.google{
+    margin-top: 10px;   
+}
+
+.fa-google{
+    font-size: 15px;
+    margin-right: 5px;
+}
+
+.fa-facebook{
+    margin-right: 5px;
+    font-size: 15px;
+}
+
+button{
+    width: 230px;
+    height: 35px;
+    border-radius: 20px;
+    margin-bottom: 25px;
+    align-items: center;
+    text-align: center;
+    font-size: 14px;
+}
