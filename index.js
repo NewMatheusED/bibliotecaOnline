@@ -13,6 +13,7 @@ const passport = require('passport');
 const session = require('express-session');
 const e = require('express');
 const { render } = require('ejs');
+const sql = require('./db');
 
 const key = process.env.GOOGLE_BOOKS_API_KEY;
 
@@ -31,6 +32,10 @@ app.use(session({
 
 app.use(passport.initialize());
 app.use(passport.session());
+
+sql`SELECT version()`
+  .then(result => console.log('Conexão com o banco de dados estabelecida com sucesso. Versão do PostgreSQL:', result[0].version))
+  .catch(err => console.error('Falha ao conectar ao banco de dados:', err));
 
 app.listen(port, () => {
     console.log(`Server is running on link: http://localhost:${port}`);
@@ -77,7 +82,7 @@ app.post('/registrar', (req, res) => {
                 } else {
                     console.log('Usuário inserido com sucesso');
                     User.getUser(email, (err, user) => {
-                        renderMainPage(req, res, user[0], '');
+                        renderMainPage(req, res, user, '');
                     })
                 }
             });
@@ -110,7 +115,7 @@ app.get('/logout', (req, res, next) => { // pelo amor de deus, não mexe nisso, 
 });
 
 app.get('/', ensureAuthenticated, (req, res) => {
-    renderMainPage(req, res, req.user[0], '');
+    renderMainPage(req, res, req.user, '');
 });
 
 app.get('/login', (req, res) => {
@@ -124,7 +129,7 @@ app.get('/register', (req, res) => {
 app.get('/search', ensureAuthenticated, (req, res) => {
     let searchTerm = req.query.q;
     req.session.lastSearch = searchTerm;
-    renderMainPage(req, res, req.user[0], '', searchTerm);
+    renderMainPage(req, res, req.user, '', searchTerm);
 })
 
 app.post('/guardar', ensureAuthenticated, (req, res) => {
@@ -136,9 +141,9 @@ app.post('/guardar', ensureAuthenticated, (req, res) => {
         if (err) {
             console.log('Erro ao inserir dados:', err);
             if (err.errorCode === 1001) {
-                renderMainPage(req, res, req.user[0], 'Livro já guardado');
+                renderMainPage(req, res, req.user, 'Livro já guardado');
             } else {
-                renderMainPage(req, res, req.user[0], 'Ocorreu um erro');
+                renderMainPage(req, res, req.user, 'Ocorreu um erro');
             }
         } else {
             console.log('Dados inseridos com sucesso');

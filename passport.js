@@ -12,10 +12,10 @@ passport.use('login', new LocalStrategy({
         if (err) {
             return done(err);
         }
-        bcrypt.compare(password, user[0].password, (err, isMatch) => {
+        bcrypt.compare(password, user.password, (err, isMatch) => {
             if (err) { return done(err); }
             if (isMatch) {
-                return done(null, user[0]);
+                return done(null, user);
             } else {
                 return done(null, false, { message: 'Incorrect password.' });
             }

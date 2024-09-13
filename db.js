@@ -16,15 +16,4 @@ const sql = postgres({
     },
   });
 
-  async function getPgVersion() {
-    try {
-        await sql.connect();
-        console.log('Connected to PostgreSQL database');
-    } catch (error) {
-        console.error('Failed to connect to PostgreSQL database:', error);
-    }
-  }
-  
-  getPgVersion();
-
 module.exports = sql;
