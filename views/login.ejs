@@ -1,24 +1,37 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="stylesheet" href="../public/css/style.css">
+    <title>Biblioteca</title>
 </head>
 <body>
-    <h1>Logue na plataforma</h1>
-    <form action="/login" method="post">
-    <label for="email">Email:</label>
-    <input type="text" id="email" name="email" required>
-    <br>
-    <label for="password">Password:</label>
-    <input type="password" id="password" name="password" required>
-    <br>
-    <input type="submit" value="Login">
-    <p>Não tem conta ainda? Crie uma <a href="/register">aqui</a></p>
+    <section class="main">
+        <div class="container">
+            <form action="/login" method="post">
+                <div class="img">
+                    <img src="../public/img/biblioteca 2-01.png" alt="">
+                </div><!--img-->
+                <h1>Login</h1>
+                <input class="email" type="text" id="email" name="email" required placeholder="E-mail">
+                <input class="password" id="password" name="password" required placeholder="Senha">
+                <input class="login" type="submit" value="Entrar">
+                <p class="line"></p> 
+                <a href="#">Esqueci a Senha</a>
+                <button class="google"><i class="fa-brands fa-google"></i> Continuar com o Google</button>
+                <button><i class="fa-brands fa-facebook"></i> Continuar com Facebook</button>
+
+                
     <% if (message) { %>
         <p><%= message %></p>
     <% } %>
-    </form>
+
+            </form>
+        </div><!--container-->
+    </section>
 </body>
 </html>
+
+    
