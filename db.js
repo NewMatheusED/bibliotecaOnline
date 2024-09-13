@@ -1,19 +1,19 @@
-const mysql = require('mysql2');
+const postgres = require('postgres');
 require('dotenv').config();
 
-const con = mysql.createConnection({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-});
+let { PGHOST, PGDATABASE, PGUSER, PGPASSWORD, ENDPOINT_ID } = process.env;
+PGPASSWORD = decodeURIComponent(PGPASSWORD);
 
-con.connect((err) => {
-    if (err) {
-        console.log('Erro ao conectar ao banco de dados:', err);
-    } else {
-        console.log('Conectado ao banco de dados');
-    }
-});
+const sql = postgres({
+    host: PGHOST,
+    database: PGDATABASE,
+    username: PGUSER,
+    password: PGPASSWORD,
+    port: 5432,
+    ssl: 'require',
+    connection: {
+      options: `project=${ENDPOINT_ID}`,
+    },
+  });
 
-module.exports = con;
+module.exports = sql;
