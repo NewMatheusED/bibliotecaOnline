@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "dev": "nodemon index.js",
     "setup": "npm install && node setup.js",
     "start": "node index.js",
     "vercel-build": "npm install && node setup.js"
