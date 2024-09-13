@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,7 +8,7 @@
 <body>
     <h1>Registre-se na plataforma</h1>
     <form action="/registrar" method="post">
-        <label for="name">Nome:</label>
+        <label for="name">Nome:</label> <!-- posso mudar-->
         <input type="text" name="name" id="name" required>
         <label for="email">Email:</label>
         <input type="email" id="email" name="email" required>
@@ -19,7 +19,7 @@
         <input type="submit" value="Sign In">
         <p>Já possui conta? Entre <a href="/login">aqui</a></p>
         <% if (message) { %>
-            <p><%= message %></p>
+            <p> <!--posso mudar-->   <%= message %>  <!--posso mudar-->  </p>
         <% } %>
     </form>
 </body>
