@@ -7,14 +7,15 @@
     "dev": "nodemon index.js",
     "setup": "npm install && node setup.js",
     "start": "node index.js",
-    "vercel-build": "npm install && node setup.js"
+    "vercel-build": "npm install && node setup.js",
+    "postinstall": "npm rebuild"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@vercel/postgres": "^0.10.0",
     "axios": "^1.7.4",
-    "bcrypt": "^5.1.1",
+    "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.2",
     "dotenv": "^16.4.5",
     "ejs": "^3.1.10",
