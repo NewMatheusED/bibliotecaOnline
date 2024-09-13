@@ -7,8 +7,7 @@
     "dev": "nodemon index.js",
     "setup": "npm install && node setup.js",
     "start": "node index.js",
-    "vercel-build": "npm install && node setup.js",
-    "postinstall": "npm rebuild"
+    "vercel-build": "npm install && node setup.js"
   },
   "author": "",
   "license": "ISC",
