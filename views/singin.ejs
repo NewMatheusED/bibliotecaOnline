@@ -3,24 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register</title>
+    <link rel="stylesheet" href="../public/css/cadastro.css">
+    <title>Biblioteca</title>
 </head>
 <body>
-    <h1>Registre-se na plataforma</h1>
-    <form action="/registrar" method="post">
-        <label for="name">Nome:</label> <!-- posso mudar-->
-        <input type="text" name="name" id="name" required>
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email" required>
-        <br>
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required>
-        <br>
-        <input type="submit" value="Sign In">
-        <p>Já possui conta? Entre <a href="/login">aqui</a></p>
-        <% if (message) { %>
-            <p> <!--posso mudar-->   <%= message %>  <!--posso mudar-->  </p>
-        <% } %>
-    </form>
+    <section class="main">
+        <div class="container">
+            <form action="/registrar" method="post">
+                <div class="img">
+                    <img src="biblioteca 2-01.png" alt="">
+                </div><!--img-->
+                <h1>Registre-se na plataforma</h1>
+                <div class="name">                
+                <input type="text" name="name" id="name" required placeholder="Nome:">
+                <input type="text" name="name" id="name" placeholder="Sobrenome">
+            </div>
+
+                <input type="email" id="email" name="email" required placeholder="E-mail:">
+                <input type="password" id="password" name="password" required placeholder="Senha:">
+                <input type="submit" value="Cadastrar">
+          
+            
+
+                <p>Já possui conta?  <a href="/login">Entre Aqui</a></p>
+                <% if (message) { %>
+                    <p> <!--posso mudar-->   <%= message %>  <!--posso mudar-->  </p>
+                <% } %>
+            </form>
+        </div><!--container-->
+    </section>
 </body>
 </html>
