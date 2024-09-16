@@ -82,7 +82,8 @@ input::placeholder{
     height: 36px;
     width: 260px;
     font-size: 15px;
-    background-color:aqua ;
+    background-color: rgb(53, 52, 52);
+    color: whitesmoke;
 }
 
 .line {

@@ -13,18 +13,14 @@
                 <div class="img">
                     <img src="biblioteca 2-01.png" alt="">
                 </div><!--img-->
-                <h1>Registre-se na plataforma</h1>
-                <div class="name">                
-                <input type="text" name="name" id="name" required placeholder="Nome:">
-                <input type="text" name="name" id="name" placeholder="Sobrenome">
-            </div>
+                <h1>Registre-se na plataforma</h1>     
 
+                <input type="text" name="name" id="name" required placeholder="Nome:"> 
                 <input type="email" id="email" name="email" required placeholder="E-mail:">
                 <input type="password" id="password" name="password" required placeholder="Senha:">
-                <input type="submit" value="Cadastrar">
-          
-            
 
+                <input type="submit" value="Cadastrar">
+                
                 <p>Já possui conta?  <a href="/login">Entre Aqui</a></p>
                 <% if (message) { %>
                     <p> <!--posso mudar-->   <%= message %>  <!--posso mudar-->  </p>
