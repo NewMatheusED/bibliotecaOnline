@@ -199,7 +199,7 @@ app.get('/countBooks/:user_id', ensureAuthenticated, (req, res) => {
     Book.countBooks(req.params.user_id, (err, result) => {
         if (err) {
             console.log('Erro ao contar livros:', err);
-            res.status(500).send('An error occurred while counting books');
+            res.status(500).json({ message: 'An error occurred while counting books', count: 0 });
         } else {
             console.log('Livros contados com sucesso');
             return res.json({ count: result });
