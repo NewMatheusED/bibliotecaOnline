@@ -23,6 +23,15 @@ module.exports = {
         }
     },
 
+    countBooks: async function(user_id, callback) {
+        try {
+            const result = await sql`SELECT COUNT(*) FROM livros_guardados WHERE user_id = ${user_id}`;
+            callback(null, result);
+        } catch (err) {
+            callback(err);
+        }
+    },
+
     deleteBook: async function(id, callback) {
         try {
             await sql`DELETE FROM livros_guardados WHERE titulo = ${id}`;

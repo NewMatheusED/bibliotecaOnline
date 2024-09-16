@@ -5,16 +5,14 @@ const port = 3000;
 const app = express();
 const path = require('path');
 const bodyParser = require('body-parser');
-const axios = require('axios');
 const bcrypt = require('bcryptjs')
 const User = require('./models/userModels')
 const Book = require('./models/bookModels')
 const passport = require('passport');
 const session = require('express-session');
-const e = require('express');
-const { render } = require('ejs');
 const sql = require('./db');
 const renderMainPage = require('./routes/renderMainPage');
+const { count } = require('console');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -196,3 +194,15 @@ app.post('/updatePrivilege', ensureAuthenticated, (req, res) => {
         }
     })
 });
+
+app.get('/countBooks/:user_id', ensureAuthenticated, (req, res) => {
+    Book.countBooks(req.params.user_id, (err, result) => {
+        if (err) {
+            console.log('Erro ao contar livros:', err);
+            res.status(500).send('An error occurred while counting books');
+        } else {
+            console.log('Livros contados com sucesso');
+            return res.json({ count: result });
+        }
+    })
+})
