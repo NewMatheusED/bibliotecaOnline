@@ -14,8 +14,7 @@ const session = require('express-session');
 const e = require('express');
 const { render } = require('ejs');
 const sql = require('./db');
-
-const key = process.env.GOOGLE_BOOKS_API_KEY;
+const renderMainPage = require('./routes/renderMainPage');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -27,7 +26,8 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: false
+    saveUninitialized: true,
+    cookie: { maxAge: 24 * 60 * 60 * 1000 }
 }));
 
 app.use(passport.initialize());
@@ -39,18 +39,7 @@ sql`SELECT version()`
 
 app.listen(port, () => {
     console.log(`Server is running on link: http://localhost:${port}`);
-})
-
-function renderMainPage(req, res, extra, message, bookQuery = req.session.lastSearch || 'javascript') { 
-    axios.get(`https://www.googleapis.com/books/v1/volumes?q=${bookQuery}&key=${key}`)
-    .then((response) => {
-        res.render('index', { data: response.data.items, user: extra, message: message});
-    })
-    .catch((error) => {
-        console.log(error);
-        res.status(500).send('An error occurred while fetching books');
-    });
-}
+});
 
 function ensureAuthenticated(req, res, next) {
     if (req.isAuthenticated()) {
@@ -82,7 +71,7 @@ app.post('/registrar', (req, res) => {
                 } else {
                     console.log('Usuário inserido com sucesso');
                     User.getUser(email, (err, user) => {
-                        renderMainPage(req, res, user, '');
+                        return res.redirect('/');
                     })
                 }
             });
@@ -132,6 +121,21 @@ app.get('/search', ensureAuthenticated, (req, res) => {
     renderMainPage(req, res, req.user, '', searchTerm);
 })
 
+app.get('/admin', ensureAuthenticated, (req, res) => {
+    if (req.user.privilege === 'admin') {
+        User.listUsers((err, result) => {
+            if (err) {
+                console.log('Erro ao buscar usuários:', err);
+                res.status(500).send('An error occurred while fetching users');
+            } else {
+                res.render('admin', { users: result, selectedUser: req.user.email })
+            }
+        });
+    } else {
+        renderMainPage(req, res, req.user, 'Você não tem permissão para acessar essa página');
+    }
+})
+
 app.post('/guardar', ensureAuthenticated, (req, res) => {
     let title = req.body.title;
     let author = req.body.author;
@@ -179,3 +183,16 @@ app.post('/deletar', ensureAuthenticated, (req, res) => {
         }
     });
 })
+
+app.post('/updatePrivilege', ensureAuthenticated, (req, res) => {
+    const { email, privilege } = req.body;
+    User.updatePrivilege(email, privilege, (err, result) => {
+        if (err) {
+            console.log('Erro ao atualizar privilégio:', err);
+            res.status(500).json({ message: 'An error occurred while updating privilege' });
+        } else {
+            console.log('Privilégio atualizado com sucesso');
+            res.json({ message: 'Privilégio atualizado com sucesso' });
+        }
+    })
+});

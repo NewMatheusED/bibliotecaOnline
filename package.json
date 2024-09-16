@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon index.js",
-    "vercel-build": "npm install && node setup.js"
+    "vercel-build": "npm install && node setup.js",
+    "set": "node setup.js"
   },
   "author": "",
   "license": "ISC",
