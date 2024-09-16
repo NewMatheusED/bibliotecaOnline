@@ -1,5 +1,6 @@
 CREATE TABLE IF NOT EXISTS livros_guardados (
     id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL,
     titulo VARCHAR(100) NOT NULL,
     autor VARCHAR(100) NOT NULL,
     url_imagem VARCHAR(255) NOT NULL

@@ -141,7 +141,7 @@ app.post('/guardar', ensureAuthenticated, (req, res) => {
     let author = req.body.author;
     let image = req.body.image;
 
-    Book.createBook(title, author, image, (err, result) => {
+    Book.createBook(req.user.id, title, author, image, (err, result) => {
         if (err) {
             console.log('Erro ao inserir dados:', err);
             if (err.errorCode === 1001) {
@@ -157,12 +157,12 @@ app.post('/guardar', ensureAuthenticated, (req, res) => {
 });
 
 app.get('/livrosGuardados', ensureAuthenticated, (req, res) => {
-    Book.listBooks((err, result) => {
+    Book.listBooks(req.user.id, (err, result) => {
         if (err) {
             console.log('Erro ao buscar dados:', err);
             res.status(500).send('An error occurred while fetching data');
         } else {
-            res.render('guardados', { data: result });
+            res.render('guardados', { data: result, userId: req.user.id });
         }
     });
 })

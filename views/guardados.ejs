@@ -11,18 +11,20 @@
         <input type="submit" value="Voltar à página inicial">
     </form>
     <% for(item in data) { %>
-        <h2><%= data[item].titulo %></h2>
-        <% if (data[item].url_imagem == 'false') { %>
-            <p>Não há imagem disponível</p>
-        <% } else { %>
-            <img src="<%= data[item].url_imagem %>" alt="">
+        <% if (userId == data[item].user_id) { %>
+            <h2><%= data[item].titulo %></h2>
+            <% if (data[item].url_imagem == 'false') { %>
+                <p>Não há imagem disponível</p>
+            <% } else { %>
+                <img src="<%= data[item].url_imagem %>" alt="">
+            <% } %>
+            <h3><%= data[item].autor %></h3>
+            <form action="/deletar" method="post">
+                <input type="hidden" name="titulo" value="<%= data[item].titulo %>">
+                <input type="submit" value="Deletar livro">
+            </form>
+            <hr>
         <% } %>
-        <h3><%= data[item].autor %></h3>
-        <form action="/deletar" method="post">
-            <input type="hidden" name="titulo" value="<%= data[item].titulo %>">
-            <input type="submit" value="Deletar livro">
-        </form>
-        <hr>
     <% } %>
 </body>
 </html>
