@@ -50,6 +50,7 @@ form{
     max-width: 150px; 
     img {
         width: 100%;
+        
     }
 }
 
@@ -125,6 +126,10 @@ a{
     text-decoration: none;
     color: rgba(16, 57, 192, 0.781);
     margin-bottom: 10px;   
+}a:hover{
+    text-decoration: underline;
+    color: black;
+    font-size: 16px;
 }
 
 .google{
@@ -141,12 +146,27 @@ a{
     font-size: 15px;
 }
 
+
+ span{
+   font-size: 15px;
+    color: black;
+    
+}span:hover{
+   
+    text-decoration: underline;
+    color: rgb(53, 52, 52);
+    font-size: 18px;
+}
+
+
+
 button{
     width: 230px;
     height: 35px;
     border-radius: 20px;
-    margin-bottom: 25px;
+    margin-bottom: 20px;
     align-items: center;
     text-align: center;
     font-size: 14px;
 }
+

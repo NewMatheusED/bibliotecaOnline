@@ -5,17 +5,14 @@ const port = 3000;
 const app = express();
 const path = require('path');
 const bodyParser = require('body-parser');
-const axios = require('axios');
 const bcrypt = require('bcryptjs')
 const User = require('./models/userModels')
 const Book = require('./models/bookModels')
 const passport = require('passport');
 const session = require('express-session');
-const e = require('express');
-const { render } = require('ejs');
 const sql = require('./db');
-
-const key = process.env.GOOGLE_BOOKS_API_KEY;
+const renderMainPage = require('./routes/renderMainPage');
+const { count } = require('console');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -27,7 +24,8 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: false
+    saveUninitialized: true,
+    cookie: { maxAge: 24 * 60 * 60 * 1000 }
 }));
 
 app.use(passport.initialize());
@@ -39,18 +37,7 @@ sql`SELECT version()`
 
 app.listen(port, () => {
     console.log(`Server is running on link: http://localhost:${port}`);
-})
-
-function renderMainPage(req, res, extra, message, bookQuery = req.session.lastSearch || 'javascript') { 
-    axios.get(`https://www.googleapis.com/books/v1/volumes?q=${bookQuery}&key=${key}`)
-    .then((response) => {
-        res.render('index', { data: response.data.items, user: extra, message: message});
-    })
-    .catch((error) => {
-        console.log(error);
-        res.status(500).send('An error occurred while fetching books');
-    });
-}
+});
 
 function ensureAuthenticated(req, res, next) {
     if (req.isAuthenticated()) {
@@ -82,7 +69,7 @@ app.post('/registrar', (req, res) => {
                 } else {
                     console.log('Usuário inserido com sucesso');
                     User.getUser(email, (err, user) => {
-                        renderMainPage(req, res, user, '');
+                        return res.redirect('/');
                     })
                 }
             });
@@ -132,12 +119,27 @@ app.get('/search', ensureAuthenticated, (req, res) => {
     renderMainPage(req, res, req.user, '', searchTerm);
 })
 
+app.get('/admin', ensureAuthenticated, (req, res) => {
+    if (req.user.privilege === 'admin') {
+        User.listUsers((err, result) => {
+            if (err) {
+                console.log('Erro ao buscar usuários:', err);
+                res.status(500).send('An error occurred while fetching users');
+            } else {
+                res.render('admin', { users: result, selectedUser: req.user.email })
+            }
+        });
+    } else {
+        renderMainPage(req, res, req.user, 'Você não tem permissão para acessar essa página');
+    }
+})
+
 app.post('/guardar', ensureAuthenticated, (req, res) => {
     let title = req.body.title;
     let author = req.body.author;
     let image = req.body.image;
 
-    Book.createBook(title, author, image, (err, result) => {
+    Book.createBook(req.user.id, title, author, image, (err, result) => {
         if (err) {
             console.log('Erro ao inserir dados:', err);
             if (err.errorCode === 1001) {
@@ -153,12 +155,12 @@ app.post('/guardar', ensureAuthenticated, (req, res) => {
 });
 
 app.get('/livrosGuardados', ensureAuthenticated, (req, res) => {
-    Book.listBooks((err, result) => {
+    Book.listBooks(req.user.id, (err, result) => {
         if (err) {
             console.log('Erro ao buscar dados:', err);
             res.status(500).send('An error occurred while fetching data');
         } else {
-            res.render('guardados', { data: result });
+            res.render('guardados', { data: result, userId: req.user.id });
         }
     });
 })
@@ -178,4 +180,29 @@ app.post('/deletar', ensureAuthenticated, (req, res) => {
             res.redirect('/livrosGuardados');
         }
     });
+})
+
+app.post('/updatePrivilege', ensureAuthenticated, (req, res) => {
+    const { email, privilege } = req.body;
+    User.updatePrivilege(email, privilege, (err, result) => {
+        if (err) {
+            console.log('Erro ao atualizar privilégio:', err);
+            res.status(500).json({ message: 'An error occurred while updating privilege' });
+        } else {
+            console.log('Privilégio atualizado com sucesso');
+            res.json({ message: 'Privilégio atualizado com sucesso' });
+        }
+    })
+});
+
+app.get('/countBooks/:user_id', ensureAuthenticated, (req, res) => {
+    Book.countBooks(req.params.user_id, (err, result) => {
+        if (err) {
+            console.log('Erro ao contar livros:', err);
+            res.status(500).json({ message: 'An error occurred while counting books', count: 0 });
+        } else {
+            console.log('Livros contados com sucesso');
+            return res.json({ count: result });
+        }
+    })
 })

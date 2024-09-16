@@ -10,6 +10,11 @@ html,body {
     height: 100%;
 }
 
+
+:root {
+    --formBg: #d6d6d6;
+}
+
 body {
     display: flex;
     align-items: center;
@@ -24,6 +29,7 @@ body {
    
 }
 
+
 h1 {
     text-transform: uppercase;
     font-size: 16px;
@@ -32,7 +38,9 @@ h1 {
 }
 
 form{
+    background-color: var(--formBg);
     width: fit-content;
+   height: 600px;
     padding: 20px 50px;
     padding-top: 10px;
     border-radius: 25px;
@@ -60,10 +68,11 @@ input {
     border-radius: 20px;
     background-color: rgb(204, 201, 201);
     color: black;
-    margin: auto;
+    
     outline: none;
     padding: 10px;
-    margin-bottom: 10px;
+    margin: 10px;
+    
 }
 
 

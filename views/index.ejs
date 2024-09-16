@@ -15,6 +15,10 @@
         <input type="submit" value="Ver livros guardados">
     </form>
 
+    <% if (user.privilege == 'admin') { %>
+        <a href="/admin">Página de administrador</a>
+    <% } %>
+    <br>
     <a href="/logout">Sair da conta</a>
 
     <h1>Olá <%= user.name %>!</h1>

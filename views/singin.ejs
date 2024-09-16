@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../public/css/cadastro.css">
+    <link rel="stylesheet" href="/css/cadastro.css">
     <title>Biblioteca</title>
 </head>
 <body>
@@ -11,7 +11,7 @@
         <div class="container">
             <form action="/registrar" method="post">
                 <div class="img">
-                    <img src="biblioteca 2-01.png" alt="">
+                    <img src="/img/biblioteca 2-01.png" alt="">
                 </div><!--img-->
                 <h1>Registre-se na plataforma</h1>     
 
@@ -22,6 +22,10 @@
                 <input type="submit" value="Cadastrar">
                 
                 <p>Já possui conta?  <a href="/login">Entre Aqui</a></p>
+
+
+
+                
                 <% if (message) { %>
                     <p> <!--posso mudar-->   <%= message %>  <!--posso mudar-->  </p>
                 <% } %>
