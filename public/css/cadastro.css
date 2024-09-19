@@ -49,7 +49,7 @@ form{
     flex-direction: column;
     justify-content: center;
     box-shadow: 5px 5px 5px 0 rgba(0, 0, 0, 0.3);
-   background-color: #d6d6d6;
+    background-color: whitesmoke;
     
 }
 
@@ -68,7 +68,6 @@ input {
     border-radius: 20px;
     background-color: rgb(204, 201, 201);
     color: black;
-    
     outline: none;
     padding: 10px;
     margin: 10px;
@@ -90,5 +89,12 @@ a{
     margin-bottom: 10px;   
 }
 
+a:hover{
+    text-decoration: underline;
+    color:rgb(53, 52, 52) ;
+}
 
+p{
+    margin-top: 10px;
+}
 
