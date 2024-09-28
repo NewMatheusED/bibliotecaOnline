@@ -1,6 +1,5 @@
 const fs = require('fs');
 const postgres = require('postgres');
-require('pg')
 require('dotenv').config();
 
 let { PGHOST, PGDATABASE, PGUSER, PGPASSWORD, ENDPOINT_ID } = process.env;

@@ -12,7 +12,7 @@ const passport = require('passport');
 const session = require('express-session');
 const sql = require('./db');
 const renderMainPage = require('./routes/renderMainPage');
-// const { count } = require('console');
+const { count } = require('console');
 require('pg')
 
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -201,14 +201,14 @@ app.post('/updatePrivilege', ensureAuthenticated, (req, res) => {
     })
 });
 
-// app.get('/countBooks/:user_id', ensureAuthenticated, (req, res) => {
-//     bookService.countBooks(req.params.user_id, (err, result) => {
-//         if (err) {
-//             console.log('Erro ao contar livros:', err);
-//             res.status(500).json({ message: 'An error occurred while counting books', count: 0 });
-//         } else {
-//             console.log('Livros contados com sucesso');
-//             return res.json({ count: result });
-//         }
-//     });
-// })
+app.get('/countBooks/:user_id', ensureAuthenticated, (req, res) => {
+    bookService.countBooks(req.params.user_id, (err, result) => {
+        if (err) {
+            console.log('Erro ao contar livros:', err);
+            res.status(500).json({ message: 'An error occurred while counting books', count: 0 });
+        } else {
+            console.log('Livros contados com sucesso');
+            return res.json({ count: result });
+        }
+    });
+})

@@ -12,7 +12,7 @@ const passport = require('passport');
 const session = require('express-session');
 const sql = require('./db');
 const renderMainPage = require('./routes/renderMainPage');
-// const { count } = require('console');
+const { count } = require('console');
 require('pg')
 
 app.use(bodyParser.urlencoded({ extended: true }));
