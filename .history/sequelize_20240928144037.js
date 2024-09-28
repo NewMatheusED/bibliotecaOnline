@@ -22,4 +22,4 @@ const sequelize = new Sequelize({
   logging: console.log // Habilita logs detalhados
 });
 
-module.exports = sequelize;
+module.exports

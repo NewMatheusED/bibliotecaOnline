@@ -27,10 +27,10 @@
         <h3><%= message %></h3>
     <% } %>
 
-    <form action="/filter" method="POST">
+    <form action="/filter" method="GET">
         <label for="genre">Selecione o gênero:</label>
         <select name="genre" id="genre">
-            <option value="" <%= subject === '' ? 'selected' : '' %>></option>
+            <option value=""<%=%>></option>
             <option value="fiction" <%= subject === 'fiction' ? 'selected' : '' %>>Ficção</option>
             <option value="fantasy" <%= subject === 'fantasy' ? 'selected' : '' %>>Fantasia</option>
             <option value="mystery" <%= subject === 'mystery' ? 'selected' : '' %>>Mistério</option>

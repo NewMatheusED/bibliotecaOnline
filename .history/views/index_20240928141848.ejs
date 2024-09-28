@@ -27,16 +27,16 @@
         <h3><%= message %></h3>
     <% } %>
 
-    <form action="/filter" method="POST">
+    <form action="/filter" method="GET">
         <label for="genre">Selecione o gênero:</label>
         <select name="genre" id="genre">
-            <option value="" <%= subject === '' ? 'selected' : '' %>></option>
-            <option value="fiction" <%= subject === 'fiction' ? 'selected' : '' %>>Ficção</option>
-            <option value="fantasy" <%= subject === 'fantasy' ? 'selected' : '' %>>Fantasia</option>
-            <option value="mystery" <%= subject === 'mystery' ? 'selected' : '' %>>Mistério</option>
-            <option value="biography" <%= subject === 'biography' ? 'selected' : '' %>>Biografia</option>
-            <option value="science" <%= subject === 'science' ? 'selected' : '' %>>Ciência</option>
-            <option value="history" <%= subject === 'history' ? 'selected' : '' %>>História</option>
+            <option value="fiction">Ficção</option>
+            <option value="non-fiction">Não-ficção</option>
+            <option value="fantasy">Fantasia</option>
+            <option value="mystery">Mistério</option>
+            <option value="biography">Biografia</option>
+            <option value="science">Ciência</option>
+            <option value="history">História</option>
         </select>
         <input type="submit" value="Filtrar">
     </form>

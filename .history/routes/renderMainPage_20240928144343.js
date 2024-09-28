@@ -2,7 +2,7 @@ require('dotenv').config();
 const axios = require('axios');
 
 const key = process.env.GOOGLE_BOOKS_API_KEY;
-const searchDefault = 'javascript'; // Valor padrão de pesquisa
+
 
 function renderMainPage(req, res, extra, message, bookQuery = req.session.lastSearch, subject) { 
     // Defina valores padrão se bookQuery ou subject não estiverem definidos
@@ -15,7 +15,7 @@ function renderMainPage(req, res, extra, message, bookQuery = req.session.lastSe
     } else if (bookQuery) {
         query = bookQuery;
     } else {
-        query = searchDefault;
+        query = 'javascript'; // Valor padrão se nenhum parâmetro for fornecido
     }
     
     let url = `https://www.googleapis.com/books/v1/volumes?q=${query}&key=${key}`;

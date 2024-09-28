@@ -1,5 +1,3 @@
-const { Sequelize } = require('sequelize');
-require('dotenv').config();
 
 const sequelize = new Sequelize({
   host: process.env.PGHOST,
@@ -21,5 +19,3 @@ const sequelize = new Sequelize({
   },
   logging: console.log // Habilita logs detalhados
 });
-
-module.exports = sequelize;

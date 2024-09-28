@@ -1,6 +1,3 @@
-const { Sequelize } = require('sequelize');
-require('dotenv').config();
-
 const sequelize = new Sequelize({
   host: process.env.PGHOST,
   database: process.env.PGDATABASE,
@@ -21,5 +18,3 @@ const sequelize = new Sequelize({
   },
   logging: console.log // Habilita logs detalhados
 });
-
-module.exports = sequelize;

@@ -27,20 +27,6 @@
         <h3><%= message %></h3>
     <% } %>
 
-    <form action="/filter" method="POST">
-        <label for="genre">Selecione o gênero:</label>
-        <select name="genre" id="genre">
-            <option value="" <%= subject === '' ? 'selected' : '' %>></option>
-            <option value="fiction" <%= subject === 'fiction' ? 'selected' : '' %>>Ficção</option>
-            <option value="fantasy" <%= subject === 'fantasy' ? 'selected' : '' %>>Fantasia</option>
-            <option value="mystery" <%= subject === 'mystery' ? 'selected' : '' %>>Mistério</option>
-            <option value="biography" <%= subject === 'biography' ? 'selected' : '' %>>Biografia</option>
-            <option value="science" <%= subject === 'science' ? 'selected' : '' %>>Ciência</option>
-            <option value="history" <%= subject === 'history' ? 'selected' : '' %>>História</option>
-        </select>
-        <input type="submit" value="Filtrar">
-    </form>
-
     <% for(let i=0; i < data.length; i++) { %>
         <h2><%= data[i].volumeInfo.title %></h2>
         <form action="/guardar" method="post">

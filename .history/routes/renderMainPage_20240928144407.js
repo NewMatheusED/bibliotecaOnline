@@ -2,7 +2,7 @@ require('dotenv').config();
 const axios = require('axios');
 
 const key = process.env.GOOGLE_BOOKS_API_KEY;
-const searchDefault = 'javascript'; // Valor padrão de pesquisa
+const searchDefault = 'javascript'
 
 function renderMainPage(req, res, extra, message, bookQuery = req.session.lastSearch, subject) { 
     // Defina valores padrão se bookQuery ou subject não estiverem definidos

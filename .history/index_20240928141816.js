@@ -14,7 +14,7 @@ const sql = require('./db');
 const renderMainPage = require('./routes/renderMainPage');
 const { count } = require('console');
 
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -119,9 +119,10 @@ app.get('/search', ensureAuthenticated, (req, res) => {
     renderMainPage(req, res, req.user, '', searchTerm);
 })
 
-app.post('/filter', ensureAuthenticated, (req, res) => {
-    let subject = req.body.genre;
-    renderMainPage(req, res, req.user, '', '', subject);
+app.get('/filter', ensureAuthenticated, (req, res) => {
+    let subject = req.query.genre;
+    console.log('Selected genre:', subject);
+    res.send(`Selected genre: ${subject}`);
 });
 
 app.get('/admin', ensureAuthenticated, (req, res) => {
