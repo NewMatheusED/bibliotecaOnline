@@ -6,8 +6,7 @@
   "scripts": {
     "dev": "nodemon index.js",
     "vercel-build": "npm install && node setup.js",
-    "set": "node setup.js",
-    "start": "npm install && node setup.js && nodemon index.js"
+    "set": "node setup.js"
   },
   "author": "",
   "license": "ISC",
