@@ -1,0 +1,41 @@
+*{
+   padding: 0;
+   margin: 0;
+   box-sizing: border-box;
+   font-family: arial;
+   
+}
+
+body{
+    background-color: blue;
+}
+
+header{
+    display: flex;
+    width: 80%;
+    height: 60px;
+    margin: auto;
+    justify-content: space-between;
+}
+
+.encontrar{
+    border-radius: 8px;
+    height: 26px;
+    border: solid 3px white;
+}
+
+p {
+    content-visibility: hidden;
+}
+
+.book-container{
+    background-color: green;
+    display: flex;
+    flex-direction: column;
+}
+
+.book-card{
+    display: flex;
+    background-color: red;
+}
+
