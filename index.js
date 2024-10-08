@@ -201,6 +201,21 @@ app.post('/updatePrivilege', ensureAuthenticated, (req, res) => {
     })
 });
 
+app.get('/profile/:user_id', ensureAuthenticated, (req, res) => {
+    if (req.user.id != req.params.user_id) {
+        return res.status(403).send('Você não tem permissão para acessar este perfil');
+    }
+
+    userService.findById(req.params.user_id, (err, user) => {
+        if (err) {
+            console.log('Erro ao buscar usuário:', err);
+            res.status(500).send('An error occurred while fetching user');
+        } else {
+            return res.render('profile', { user: user });
+        }
+    });
+});
+
 // app.get('/countBooks/:user_id', ensureAuthenticated, (req, res) => {
 //     bookService.countBooks(req.params.user_id, (err, result) => {
 //         if (err) {
