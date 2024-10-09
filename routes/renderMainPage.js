@@ -1,5 +1,6 @@
 require('dotenv').config();
 const axios = require('axios');
+const bookService = require('../services/bookService');
 
 const key = process.env.GOOGLE_BOOKS_API_KEY;
 const searchDefault = 'javascript'; // Valor padrão de pesquisa
@@ -17,14 +18,18 @@ function renderMainPage(req, res, extra, message, bookQuery = req.session.lastSe
     } else {
         query = searchDefault;
     }
-    
+
     let url = `https://www.googleapis.com/books/v1/volumes?q=${query}&key=${key}`;
 
     console.log(url);
 
     axios.get(url)
-    .then((response) => {
-        res.render('index', { data: response.data.items, user: extra, message: message, subject: subject });
+    .then(async (response) => {
+        const books = response.data.items;
+        const savedBooks = await bookService.listBooks(extra.id);
+        const savedBookTitles = savedBooks.map(book => book.titulo);
+
+        res.render('index', { data: books, user: extra, message: message, subject: subject, savedBookTitles });
     })
     .catch((error) => {
         console.log(error);

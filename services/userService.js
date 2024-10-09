@@ -7,7 +7,7 @@ module.exports = {
       if (existingUser) {
         return callback({ error: 'Usuário já cadastrado', errorCode: 1001 });
       }
-      await User.create({ name, email, password, privilege: 'user' });
+      await User.create({ name, email, password, privilege: 'user', profilepicture: '/img/defaultUserProfile.png' });
       callback(null);
     } catch (err) {
       callback(err);
@@ -31,7 +31,7 @@ module.exports = {
       }
       callback(null, user);
     } catch (err) {
-      callback(err);
+      callback(err);f
     }
   },
 
@@ -59,6 +59,14 @@ module.exports = {
       callback(null);
     } catch (err) {
       callback(err);
+    }
+  },
+
+  updateUser: async function(id, updatedData) {
+    try {
+      await User.update(updatedData, { where: { id } });
+    } catch (err) {
+      throw err;
     }
   }
 };

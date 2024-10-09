@@ -17,7 +17,7 @@ module.exports = {
   listBooks: async function(user_id, callback) {
     try {
       const books = await Book.findAll({ where: { user_id } });
-      callback(null, books);
+      return books;
     } catch (err) {
       callback(err);
     }

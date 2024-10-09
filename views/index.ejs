@@ -26,7 +26,7 @@
                 </div><!--search-->
                 <div class="user">
                     <div class="profile">
-                        <img src="/img/defaultUserProfile.png" alt="Imagem do usuário">
+                        <img src="<%= user.profilepicture %>" alt="Imagem do usuário">
                         <div class="modal">
                             <div class="modalContent">
                                 <h2 class="mainTitle"><%= user.name %></h2>
@@ -88,7 +88,13 @@
                                 <input type="hidden" name="title" value="<%= data[i].volumeInfo.title %>">
                                 <input type="hidden" name="author" value="<%= data[i].volumeInfo.authors ? data[i].volumeInfo.authors.join(', ') : 'Autor desconhecido' %>">
                                 <input type="hidden" name="image" value="<%= data[i].volumeInfo.imageLinks && data[i].volumeInfo.imageLinks.thumbnail ? data[i].volumeInfo.imageLinks.thumbnail : 'false' %>">
-                                <button><i class="fa-regular fa-heart"></i></button>
+                                <button>
+                                    <% if (savedBookTitles.includes(data[i].volumeInfo.title)) { %>
+                                        <i class="fa-solid fa-heart" style="color: #ff0000;"></i>
+                                    <% } else { %>
+                                        <i class="fa-regular fa-heart"></i>
+                                    <% } %>
+                                </button>
                             </form>
                         </div><!--top-->
                         <div class="image">

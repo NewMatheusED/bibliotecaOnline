@@ -23,6 +23,11 @@ const User = sequelize.define('User', {
   privilege: {
     type: DataTypes.STRING(100),
     allowNull: false
+  },
+  profilepicture: {
+    type: DataTypes.STRING(255),
+    allowNull: false,
+    defaultValue: '/img/defaultUserProfile.png'
   }
 }, {
   tableName: 'usuarios',

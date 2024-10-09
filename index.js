@@ -12,6 +12,8 @@ const passport = require('passport');
 const session = require('express-session');
 const sql = require('./db');
 const renderMainPage = require('./routes/renderMainPage');
+const multer = require('multer');
+const fs = require('fs');
 // const { count } = require('console');
 require('pg')
 
@@ -46,6 +48,22 @@ function ensureAuthenticated(req, res, next) {
     } else {
         res.redirect('/login');
     }
+}
+
+const storage = multer.diskStorage({
+    destination: function(req, file, cb) {
+        cb(null, 'public/img/profilePictures')
+    },
+    filename: function(req, file, cb) {
+        cb(null, `${req.user.id}-profile.png`)
+    }
+})
+
+const upload = multer({ storage: storage });
+
+const profilePicturesDir = path.join(__dirname, 'public', 'img', 'profilePictures');
+if (!fs.existsSync(profilePicturesDir)) {
+    fs.mkdirSync(profilePicturesDir, { recursive: true });
 }
 
 app.post('/registrar', (req, res) => {
@@ -132,7 +150,7 @@ app.get('/admin', ensureAuthenticated, (req, res) => {
                 console.log('Erro ao buscar usuários:', err);
                 res.status(500).send('An error occurred while fetching users');
             } else {
-                res.render('admin', { users: result, selectedUser: req.user.email })
+                res.render('admin', { users: result, selectedUser: req.user })
             }
         });
     } else {
@@ -214,6 +232,32 @@ app.get('/profile/:user_id', ensureAuthenticated, (req, res) => {
             return res.render('profile', { user: user });
         }
     });
+});
+
+app.post('/profile/update', ensureAuthenticated, upload.single('profilePicture'), async (req, res) => {
+    const { name, currentPassword, newPassword } = req.body;
+    const userId = req.user.id;
+    let profilePicture = req.user.profilepicture;
+
+    if (req.file) {
+        profilePicture = `/img/profilePictures/${req.file.filename}`;
+    }
+
+    try {
+        const updatedData = {};
+        if (name) updatedData.name = name;
+        if (profilePicture) updatedData.profilepicture = profilePicture;
+        if (newPassword) {
+            const hashedPassword = await bcrypt.hash(newPassword, 10);
+            updatedData.password = hashedPassword;
+        }
+
+        await userService.updateUser(userId, updatedData);
+        res.redirect('/profile/' + userId);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Erro ao atualizar perfil');
+    }
 });
 
 // app.get('/countBooks/:user_id', ensureAuthenticated, (req, res) => {
