@@ -53,20 +53,20 @@ module.exports = {
     }
   },
 
-  deleteUser: async function(email, callback) {
+  deleteUser: async function(id, callback) {
     try {
-      await User.destroy({ where: { email } });
+      await User.destroy({ where: { id } });
       callback(null);
     } catch (err) {
       callback(err);
     }
   },
 
-  updateUser: async function(id, updatedData) {
+  updateUser: async function(id, updatedData, callback) {
     try {
       await User.update(updatedData, { where: { id } });
     } catch (err) {
-      throw err;
+      callback(err);
     }
   }
 };

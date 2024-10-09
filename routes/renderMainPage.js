@@ -24,12 +24,16 @@ function renderMainPage(req, res, extra, message, bookQuery = req.session.lastSe
     console.log(url);
 
     axios.get(url)
-    .then(async (response) => {
+    .then((response) => {
         const books = response.data.items;
-        const savedBooks = await bookService.listBooks(extra.id);
-        const savedBookTitles = savedBooks.map(book => book.titulo);
-
-        res.render('index', { data: books, user: extra, message: message, subject: subject, savedBookTitles });
+        bookService.listBooks(extra.id, (err, savedBooks) => {
+            if (err) {
+                console.log(err);
+                return res.status(500).send('An error occurred while fetching saved books');
+            }
+            const savedBookTitles = savedBooks.map(book => book.titulo);
+            res.render('index', { data: books, user: extra, message: message, subject: subject, savedBookTitles });
+        });
     })
     .catch((error) => {
         console.log(error);
