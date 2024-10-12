@@ -13,6 +13,7 @@ const session = require('express-session');
 const sql = require('./db');
 const renderMainPage = require('./routes/renderMainPage');
 const multer = require('multer');
+const axios = require('axios');
 const fs = require('fs');
 // const { count } = require('console');
 require('pg')
@@ -28,7 +29,7 @@ app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
-    cookie: { maxAge: 24 * 60 * 60 * 1000 }
+    cookie: { maxAge: 30 * 60 * 1000 }
 }));
 
 app.use(passport.initialize());
@@ -45,9 +46,8 @@ app.listen(port, () => {
 function ensureAuthenticated(req, res, next) {
     if (req.isAuthenticated()) {
         return next();
-    } else {
-        res.redirect('/login');
     }
+    res.redirect('/login');
 }
 
 const storage = multer.diskStorage({
@@ -66,6 +66,17 @@ if (!fs.existsSync(profilePicturesDir)) {
     fs.mkdirSync(profilePicturesDir, { recursive: true });
 }
 
+app.get('/header-data', ensureAuthenticated, (req, res) => {
+    const user = req.user;
+
+    res.json({
+        name: user.name,
+        email: user.email,
+        profilePicture: user.profilepicture,
+        privilege: user.privilege,
+        id: user.id
+    });
+});
 app.post('/registrar', (req, res) => {
     let name = req.body.name;
     let email = req.body.email;
@@ -126,6 +137,16 @@ app.get('/', ensureAuthenticated, (req, res) => {
 
 app.get('/login', (req, res) => {
     res.render('login', { message: req.query.error ? 'Usuário ou senha inválidos' : '' });
+})
+
+app.get('/singleBook', ensureAuthenticated, (req, res) => {
+    let id = req.query.id;
+    let url = `https://www.googleapis.com/books/v1/volumes/${id}?key=${process.env.GOOGLE_BOOKS_API_KEY}`;
+    axios.get(url)
+        .then((response) => {
+            let book = response.data;
+            res.render('singleBook', { book: book });
+        })
 })
 
 app.get('/register', (req, res) => {

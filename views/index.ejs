@@ -9,51 +9,7 @@
 </head>
 <body>
 
-    <header>
-        <div class="container">
-            <div class="flexHeader">
-                <div class="logo">
-                    <img src="/img/biblioteca 2-01.png" alt="">
-                </div><!--logo-->
-                <div class="search">
-                    <form action="/search" method="GET">
-                        <input type="text" name="q" placeholder="Search books">
-                        <button><i class="fa-solid fa-magnifying-glass"></i></button>
-                    </form>
-                    <form action="/livrosGuardados">
-                        <input type="submit" value="Ver livros guardados">
-                    </form>
-                </div><!--search-->
-                <div class="user">
-                    <div class="profile">
-                        <img src="<%= user.profilepicture %>" alt="Imagem do usuário">
-                        <div class="modal">
-                            <div class="modalContent">
-                                <h2 class="mainTitle"><%= user.name %></h2>
-                                <p class="emailUser"><%= user.email %></p>
-                                <h3 class="typeUser"><%= user.privilege %></h3>
-                                <ul>
-                                    <li>
-                                        <a href="/profile/<%= user.id %>">Editar perfil</a>
-                                    </li>
-                                    <% if (user.privilege == 'admin') { %>
-                                        <li>
-                                            <a href="/admin">Página de administrador</a>
-                                        </li>
-                                    <% } %>
-                                    <li>
-                                        <a href="/logout">Sair da conta</a>
-                                    </li>
-                                </ul>
-                            </div><!--modalContent-->
-                        </div><!--modal-->
-                    </div><!--profile-->
-                </div><!--user-->
-            </div><!-- flexHeader -->
-        </div><!-- container -->
-    </header>
-
-    <br>
+<%- include('header') %>
 
     <h1>Olá <%= user.name %>!</h1>
 
@@ -81,7 +37,7 @@
         <div class="container">
             <div class="allBooks">
                 <% for(let i=0; i < data.length; i++) { %>
-                    <div class="book" onclick="">
+                    <div class="book" onclick="getDetail('<%= data[i].id %>')">
                         <div class="top">
                             <h2 class="titleBook"><%= data[i].volumeInfo.title %></h2>
                             <form class="stockBook">
@@ -112,12 +68,6 @@
             </div><!--allBooks-->
         </div><!--container-->
     </section>
-    <script src="/js/jquery.js"></script>
-    <script>
-        $('.profile img').click(function() {
-            $('.modal').slideToggle();
-        })
-    </script>
     <script>
         let tam = 25;
         document.querySelectorAll('.titleBook').forEach(function(title) {
@@ -151,6 +101,23 @@
             }
             });
         });
+    </script>
+    <script>
+        function getDetail(id) {
+            $.ajax({
+                url: '/singleBook',
+                method: 'GET',
+                data: { 
+                    id: id
+                },
+                success: function(data) {
+                    window.location.href = '/singleBook?id=' + id;
+                },
+                error: function(err) {
+                    console.error('Erro ao buscar detalhes do livro:', err);
+                }
+            });
+        }
     </script>
 </body>
 </html>

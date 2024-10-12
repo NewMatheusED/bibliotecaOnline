@@ -1,0 +1,99 @@
+<link rel="stylesheet" href="/css/header.css">
+<header>
+    <div class="container">
+        <div class="flexHeader">
+            <div class="logo">
+                <img src="/img/biblioteca 2-01.png" alt="">
+            </div><!--logo-->
+            <div class="search">
+                <form action="/search" method="GET">
+                    <input type="text" name="q" placeholder="Search books">
+                    <button><i class="fa-solid fa-magnifying-glass"></i></button>
+                </form>
+                <form action="/livrosGuardados">
+                    <input type="submit" value="Ver livros guardados">
+                </form>
+            </div><!--search-->
+            <div class="user">
+                <div class="profile">
+                    <img id="profile-picture" src="" alt="Imagem do usuário">
+                    <div class="modal">
+                        <div class="modalContent">
+                            <h2 class="mainTitle" id="user-name"></h2>
+                            <p class="emailUser" id="user-email"></p>
+                            <h3 class="typeUser" id="user-privilege"></h3>
+                            <ul>
+                                <li>
+                                    <a id="edit-profile" href="#">Editar perfil</a>
+                                </li>
+                                <li id="admin-page" style="display: none;">
+                                    <a href="/admin">Página de administrador</a>
+                                </li>
+                                <li>
+                                    <a href="/logout">Sair da conta</a>
+                                </li>
+                            </ul>
+                        </div><!--modalContent-->
+                    </div><!--modal-->
+                </div><!--profile-->
+            </div><!--user-->
+        </div><!-- flexHeader -->
+    </div><!-- container -->
+</header>
+
+<nav aria-label="breadcrumb">
+    <div class="container">
+        <ol id="breadcrumb" class="breadcrumb">
+            
+        </ol>
+    </div><!--container-->
+</nav>
+
+<script src="/js/jquery.js"></script>
+<script>
+    $(document).ready(function() {
+        $.ajax({
+            url: '/header-data',
+            method: 'GET',
+            success: function(data) {
+                $('#profile-picture').attr('src', data.profilePicture);
+                $('#user-name').text(data.name);
+                $('#user-email').text(data.email);
+                $('#user-privilege').text(data.privilege);
+                $('#edit-profile').attr('href', '/profile/' + data.id);
+                if (data.privilege === 'admin') {
+                    $('#admin-page').show();
+                }
+            },
+            error: function(err) {
+                console.error('Erro ao carregar dados do header:', err);
+            }
+        });
+
+        // Função para gerar o breadcrumb dinâmico
+        function generateBreadcrumb() {
+            const breadcrumb = $('#breadcrumb');
+            const pathArray = window.location.pathname.split('/').filter(function(el) { return el.length != 0; });
+            let path = '';
+
+            breadcrumb.append('<li class="breadcrumb-item"><a href="/">Home</a></li>');
+
+            for (let i = 0; i < pathArray.length; i++) {
+                path += '/' + pathArray[i];
+                if (i === pathArray.length - 1) {
+                    breadcrumb.append('<li class="breadcrumb-item active" aria-current="page">' + decodeURIComponent(pathArray[i]) + '</li>');
+                } else {
+                    breadcrumb.append('<li class="breadcrumb-item"><a href="' + path + '">' + decodeURIComponent(pathArray[i]) + '</a></li>');
+                }
+            }
+        }
+
+        // Chama a função para gerar o breadcrumb
+        generateBreadcrumb();
+    });
+</script>
+<script>
+    $('.profile img').click(function() {
+        $('.modal').slideToggle();
+    })
+</script>

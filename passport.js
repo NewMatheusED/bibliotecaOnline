@@ -12,6 +12,9 @@ passport.use('login', new LocalStrategy({
         if (err) {
             return done(err);
         }
+        if (!user) {
+            return done(null, false, { message: 'Incorrect email.' });
+        }
         bcrypt.compare(password, user.password, (err, isMatch) => {
             if (err) { return done(err); }
             if (isMatch) {
