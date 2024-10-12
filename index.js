@@ -1,8 +1,6 @@
 require('dotenv').config();
 require('./passport');
 const express = require('express');
-const port = 3000;
-const app = express();
 const path = require('path');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcryptjs');
@@ -15,8 +13,10 @@ const renderMainPage = require('./routes/renderMainPage');
 const multer = require('multer');
 const axios = require('axios');
 const fs = require('fs');
-// const { count } = require('console');
-require('pg')
+require('pg');
+
+const app = express();
+const port = process.env.PORT || 3000;
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -29,7 +29,7 @@ app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
-    cookie: { maxAge: 30 * 60 * 1000 }
+    cookie: { maxAge: 60 * 60 * 1000 } // 1h de sessão
 }));
 
 app.use(passport.initialize());
@@ -57,7 +57,7 @@ const storage = multer.diskStorage({
     filename: function(req, file, cb) {
         cb(null, `${req.user.id}-profile.png`)
     }
-})
+});
 
 const upload = multer({ storage: storage });
 
@@ -77,6 +77,7 @@ app.get('/header-data', ensureAuthenticated, (req, res) => {
         id: user.id
     });
 });
+
 app.post('/registrar', (req, res) => {
     let name = req.body.name;
     let email = req.body.email;
@@ -100,7 +101,7 @@ app.post('/registrar', (req, res) => {
                     console.log('Usuário inserido com sucesso');
                     userService.getUser(email, (err, user) => {
                         return res.redirect('/');
-                    })
+                    });
                 }
             });
         }
@@ -137,7 +138,7 @@ app.get('/', ensureAuthenticated, (req, res) => {
 
 app.get('/login', (req, res) => {
     res.render('login', { message: req.query.error ? 'Usuário ou senha inválidos' : '' });
-})
+});
 
 app.get('/singleBook', ensureAuthenticated, (req, res) => {
     let id = req.query.id;
@@ -146,18 +147,18 @@ app.get('/singleBook', ensureAuthenticated, (req, res) => {
         .then((response) => {
             let book = response.data;
             res.render('singleBook', { book: book });
-        })
-})
+        });
+});
 
 app.get('/register', (req, res) => {
     res.render('singin', { message: '' });
-})
+});
 
 app.get('/search', ensureAuthenticated, (req, res) => {
     let searchTerm = req.query.q;
     req.session.lastSearch = searchTerm;
     renderMainPage(req, res, req.user, '', searchTerm);
-})
+});
 
 app.post('/filter', ensureAuthenticated, (req, res) => {
     let subject = req.body.genre;
@@ -171,13 +172,13 @@ app.get('/admin', ensureAuthenticated, (req, res) => {
                 console.log('Erro ao buscar usuários:', err);
                 res.status(500).send('An error occurred while fetching users');
             } else {
-                res.render('admin', { users: result, selectedUser: req.user })
+                res.render('admin', { users: result, selectedUser: req.user });
             }
         });
     } else {
         renderMainPage(req, res, req.user, 'Você não tem permissão para acessar essa página');
     }
-})
+});
 
 app.post('/guardar', ensureAuthenticated, (req, res) => {
     let title = req.body.title;
@@ -208,11 +209,11 @@ app.get('/livrosGuardados', ensureAuthenticated, (req, res) => {
             res.render('guardados', { data: result, userId: req.user.id });
         }
     });
-})
+});
 
 app.get('/voltarHome', ensureAuthenticated, (req, res) => {
     res.redirect('/');
-})
+});
 
 app.post('/deletar', ensureAuthenticated, (req, res) => {
     const id = req.body.titulo;
@@ -225,7 +226,7 @@ app.post('/deletar', ensureAuthenticated, (req, res) => {
             res.redirect('/livrosGuardados');
         }
     });
-})
+});
 
 app.post('/updatePrivilege', ensureAuthenticated, (req, res) => {
     const { email, privilege } = req.body;
@@ -237,7 +238,7 @@ app.post('/updatePrivilege', ensureAuthenticated, (req, res) => {
             console.log('Privilégio atualizado com sucesso');
             res.json({ message: 'Privilégio atualizado com sucesso' });
         }
-    })
+    });
 });
 
 app.get('/profile/:user_id', ensureAuthenticated, (req, res) => {
@@ -264,7 +265,6 @@ app.get('/profile/:user_id', ensureAuthenticated, (req, res) => {
             }
         });
     }
-
 });
 
 app.post('/profile/update', ensureAuthenticated, upload.single('profilePicture'), async (req, res) => {
@@ -310,4 +310,6 @@ app.get('/delete/:user_id', ensureAuthenticated, (req, res) => {
             res.redirect('/admin');
         }
     });
-})
+});
+
+module.exports = app;
