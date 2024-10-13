@@ -44,9 +44,10 @@ app.listen(port, () => {
 });
 
 function ensureAuthenticated(req, res, next) {
-    if (req.isAuthenticated()) {
+    if (req.isAuthenticated() && req.isAuthenticated) {
         return next();
     }
+    console.log('Usuário não autenticado');
     res.redirect('/login');
 }
 
