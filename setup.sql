@@ -14,3 +14,12 @@ CREATE TABLE IF NOT EXISTS usuarios (
     privilege VARCHAR(100) NOT NULL,
     profilepicture VARCHAR(255) NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS "session" (
+  "sid" varchar NOT NULL COLLATE "default",
+  "sess" json NOT NULL,
+  "expire" timestamp(6) NOT NULL,
+  PRIMARY KEY ("sid")
+);
+
+CREATE INDEX "IDX_session_expire" ON "session" ("expire");

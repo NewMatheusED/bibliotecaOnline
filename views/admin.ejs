@@ -61,7 +61,7 @@
             </div><!-- col -->
         </div><!-- container -->
     </section>
-<script>
+<script nonce="<%= nonce %>">
     function updatePrivilege(email, newPrivilege, userId) {
         fetch('/updatePrivilege', {
             method: 'POST',

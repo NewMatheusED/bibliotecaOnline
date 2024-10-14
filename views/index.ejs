@@ -31,20 +31,18 @@
         <input type="submit" value="Filtrar">
     </form>
 
-
-
     <section class="books">
         <div class="container">
             <div class="allBooks">
                 <% for(let i=0; i < data.length; i++) { %>
-                    <div class="book" onclick="getDetail('<%= data[i].id %>')">
+                    <div class="book" data-id="<%= data[i].id %>">
                         <div class="top">
                             <h2 class="titleBook"><%= data[i].volumeInfo.title %></h2>
                             <form class="stockBook">
                                 <input type="hidden" name="title" value="<%= data[i].volumeInfo.title %>">
                                 <input type="hidden" name="author" value="<%= data[i].volumeInfo.authors ? data[i].volumeInfo.authors.join(', ') : 'Autor desconhecido' %>">
                                 <input type="hidden" name="image" value="<%= data[i].volumeInfo.imageLinks && data[i].volumeInfo.imageLinks.thumbnail ? data[i].volumeInfo.imageLinks.thumbnail : 'false' %>">
-                                <button>
+                                <button type="button" class="favoriteButton" data-curStatus="<%= savedBookTitles.includes(data[i].volumeInfo.title) ? 'added' : 'removed' %>">
                                     <% if (savedBookTitles.includes(data[i].volumeInfo.title)) { %>
                                         <i class="fa-solid fa-heart" style="color: #ff0000;"></i>
                                     <% } else { %>
@@ -68,56 +66,67 @@
             </div><!--allBooks-->
         </div><!--container-->
     </section>
-    <script>
-        let tam = 25;
+    <script nonce="<%= nonce %>">
         document.querySelectorAll('.titleBook').forEach(function(title) {
-
+            let tam = 25;
             if (title.textContent.length > tam) {
                 title.textContent = title.textContent.substring(0, tam) + '...';
             }
         });
-    </script>
-    <script>
-        $('.stockBook').on('submit', function(e) {
-            e.preventDefault();
-            let form = $(this);
-            let title = form.find('input[name="title"]').val();
-            let author = form.find('input[name="author"]').val();
-            let image = form.find('input[name="image"]').val();
 
-            $.ajax({
-            url: '/guardar',
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({
-                title: title,
-                author: author,
-                image: image
-            }),
-            success: function(data) {
-                console.log('foi')
-                form.find('button').html('<i class="fa-solid fa-heart"></i>');
-                form.find('button').css('color', '#ff0000');
-            }
+        document.querySelectorAll('.favoriteButton').forEach(function(button) {
+            button.addEventListener('click', function(e) {
+                e.stopPropagation();
+                let form = button.closest('form');
+                let title = form.querySelector('input[name="title"]').value;
+                let author = form.querySelector('input[name="author"]').value;
+                let image = form.querySelector('input[name="image"]').value;
+                let curStatus = button.getAttribute('data-curStatus'); // Obtém o status atual
+
+                console.log('Enviando dados:', { title, author, image, curStatus });
+
+                let url = curStatus === 'added' ? '/remover' : '/guardar';
+                let method = 'POST';
+
+                fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        title: title,
+                        author: author,
+                        image: image
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log(data);
+                    if (curStatus === 'added') {
+                        button.setAttribute('data-curStatus', 'removed');
+                        button.innerHTML = '<i class="fa-regular fa-heart"></i>';
+                        button.style.color = '';
+                    } else {
+                        button.setAttribute('data-curStatus', 'added');
+                        button.innerHTML = '<i class="fa-solid fa-heart"></i>';
+                        button.style.color = '#ff0000';
+                    }
+                })
+                .catch(error => console.error('Erro ao guardar livro:', error));
             });
         });
-    </script>
-    <script>
-        function getDetail(id) {
-            $.ajax({
-                url: '/singleBook',
-                method: 'GET',
-                data: {
-                    id: id
-                },
-                success: function(data) {
-                    window.location.href = '/singleBook?id=' + id;
-                },
-                error: function(err) {
-                    console.error('Erro ao buscar detalhes do livro:', err);
-                }
+    
+        document.querySelectorAll('.book').forEach(function(book) {
+            book.addEventListener('click', function() {
+                let id = book.getAttribute('data-id');
+                window.location.href = '/singleBook?id=' + id;
             });
-        }
+        });
     </script>
 </body>
 </html>

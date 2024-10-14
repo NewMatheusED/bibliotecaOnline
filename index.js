@@ -13,10 +13,36 @@ const renderMainPage = require('./routes/renderMainPage');
 const multer = require('multer');
 const axios = require('axios');
 const fs = require('fs');
+const pgSession = require('connect-pg-simple')(session);
+const helmet = require('helmet');
+const crypto = require('crypto');
 require('pg');
 
 const app = express();
 const port = process.env.PORT || 3000;
+
+// Middleware para gerar um nonce no res.locals
+app.use((req, res, next) => {
+    res.locals.nonce = crypto.randomBytes(16).toString('base64');
+    next();
+});
+
+// Configurar o helmet para usar o nonce
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            scriptSrc: ["'self'", (req, res) => `'nonce-${res.locals.nonce}'`],
+            styleSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com"],
+            imgSrc: ["'self'", "data:", "https://www.googleapis.com", "https://books.google.com"],
+            connectSrc: ["'self'"], // Permitir conexões com a mesma origem
+            fontSrc: ["'self'", "https:", "data:"],
+            objectSrc: ["'none'"],
+            scriptSrcAttr: [(req, res) => `'nonce-${res.locals.nonce}'`],
+            upgradeInsecureRequests: [],
+        },
+    },
+}));
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -26,10 +52,13 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 app.use(session({
+    store: new pgSession({
+        conString: `postgres://${process.env.PGUSER}:${process.env.PGPASSWORD}@${process.env.PGHOST}/${process.env.PGDATABASE}?sslmode=require`
+    }),
     secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: true,
-    cookie: { maxAge: 60 * 60 * 1000 } // 1h de sessão
+    saveUninitialized: false,
+    cookie: { maxAge: 30 * 60 * 1000 } // 30min de sessão
 }));
 
 app.use(passport.initialize());
@@ -44,12 +73,24 @@ app.listen(port, () => {
 });
 
 function ensureAuthenticated(req, res, next) {
-    if (req.isAuthenticated() && req.isAuthenticated) {
+    if (req.isAuthenticated()) {
         return next();
     }
     console.log('Usuário não autenticado');
     res.redirect('/login');
 }
+
+app.use((req, res, next) => { // middleware para verificar o tempo restante da sessão
+    if (req.session.cookie) {
+        const now = Date.now();
+        const expires = req.session.cookie._expires;
+        const remainingTime = expires - now;
+        res.locals.sessionRemainingTime = remainingTime;
+    } else {
+        res.locals.sessionRemainingTime = 0;
+    }
+    next();
+});
 
 const storage = multer.diskStorage({
     destination: function(req, file, cb) {
@@ -75,7 +116,8 @@ app.get('/header-data', ensureAuthenticated, (req, res) => {
         email: user.email,
         profilePicture: user.profilepicture,
         privilege: user.privilege,
-        id: user.id
+        id: user.id,
+        sessionRemainingTime: res.locals.sessionRemainingTime
     });
 });
 
@@ -89,7 +131,7 @@ app.post('/registrar', (req, res) => {
             console.log('Erro ao criptografar senha:', err);
             res.status(500).send('An error occurred while encrypting password');
         } else {
-            userService.createUser(name, email, hash, (err, result) => {
+            userService.createUser(name, email, hash, (err) => {
                 if (err) {  
                     if(err.errorCode == '1001') {
                         console.log('Usuário já cadastrado');
@@ -101,7 +143,12 @@ app.post('/registrar', (req, res) => {
                 } else {
                     console.log('Usuário inserido com sucesso');
                     userService.getUser(email, (err, user) => {
-                        return res.redirect('/');
+                        if (err) {
+                            console.log('Erro ao buscar usuário:', err);
+                            res.status(500).send('An error occurred while fetching user');
+                        } else {
+                            res.redirect('/');
+                        }
                     });
                 }
             });
@@ -144,10 +191,27 @@ app.get('/login', (req, res) => {
 app.get('/singleBook', ensureAuthenticated, (req, res) => {
     let id = req.query.id;
     let url = `https://www.googleapis.com/books/v1/volumes/${id}?key=${process.env.GOOGLE_BOOKS_API_KEY}`;
+
     axios.get(url)
         .then((response) => {
-            let book = response.data;
-            res.render('singleBook', { book: book });
+            try {
+                // Logar o conteúdo da resposta para verificar se é um JSON válido
+                console.log(response.data);
+                if (response.data && response.data.volumeInfo) {
+                    let book = response.data;
+                    res.render('singleBook', { book: book });
+                } else {
+                    console.error('Resposta da API não contém os dados esperados');
+                    res.status(500).send('Erro ao buscar detalhes do livro');
+                }
+            } catch (error) {
+                console.error('Erro ao fazer parse do JSON:', error);
+                res.status(500).send('Erro ao buscar detalhes do livro');
+            }
+        })
+        .catch((error) => {
+            console.error('Erro ao fazer requisição para a API:', error);
+            res.status(500).send('Erro ao buscar detalhes do livro');
         });
 });
 
@@ -189,14 +253,24 @@ app.post('/guardar', ensureAuthenticated, (req, res) => {
     bookService.createBook(req.user.id, title, author, image, (err, result) => {
         if (err) {
             console.log('Erro ao inserir dados:', err);
-            if (err.errorCode === 1001) {
-                renderMainPage(req, res, req.user, 'Livro já guardado');
-            } else {
-                renderMainPage(req, res, req.user, 'Ocorreu um erro');
-            }
+            return res.status(500).json({ message: 'Ocorreu um erro' });
         } else {
             console.log('Dados inseridos com sucesso');
-            res.redirect('/');
+            return res.status(200).json({ message: 'Dados inseridos com sucesso' });
+        }
+    });
+});
+
+app.post('/remover', ensureAuthenticated, (req, res) => {
+    let title = req.body.title;
+
+    bookService.deleteBook(req.user.id, title, (err, result) => {
+        if (err) {
+            console.log('Erro ao remover dados:', err);
+            return res.status(500).json({ message: 'Ocorreu um erro ao remover o livro' });
+        } else {
+            console.log('Livro removido com sucesso');
+            return res.status(200).json({ message: 'Livro removido com sucesso' });
         }
     });
 });
@@ -218,7 +292,7 @@ app.get('/voltarHome', ensureAuthenticated, (req, res) => {
 
 app.post('/deletar', ensureAuthenticated, (req, res) => {
     const id = req.body.titulo;
-    bookService.deleteBook(id, (err, result) => {
+    bookService.deleteBook(req.user.id, id, (err) => {
         if (err) {
             console.log('Erro ao deletar livro:', err);
             res.status(500).send('An error occurred while deleting book');
@@ -231,7 +305,7 @@ app.post('/deletar', ensureAuthenticated, (req, res) => {
 
 app.post('/updatePrivilege', ensureAuthenticated, (req, res) => {
     const { email, privilege } = req.body;
-    userService.updatePrivilege(email, privilege, (err, result) => {
+    userService.updatePrivilege(email, privilege, (err) => {
         if (err) {
             console.log('Erro ao atualizar privilégio:', err);
             res.status(500).json({ message: 'An error occurred while updating privilege' });
@@ -252,7 +326,7 @@ app.get('/profile/:user_id', ensureAuthenticated, (req, res) => {
                     console.log('Erro ao buscar usuário:', err);
                     res.status(500).send('An error occurred while fetching user');
                 } else {
-                    return res.render('profile', { user: user });
+                    res.render('profile', { user: user });
                 }
             });
         }
@@ -262,13 +336,13 @@ app.get('/profile/:user_id', ensureAuthenticated, (req, res) => {
                 console.log('Erro ao buscar usuário:', err);
                 res.status(500).send('An error occurred while fetching user');
             } else {
-                return res.render('profile', { user: user });
+                res.render('profile', { user: user });
             }
         });
     }
 });
 
-app.post('/profile/update', ensureAuthenticated, upload.single('profilePicture'), async (req, res) => {
+app.post('/profile/update', ensureAuthenticated, upload.single('profilePicture'), (req, res) => {
     const { name, currentPassword, newPassword } = req.body;
     const userId = req.user.id;
     let profilePicture = req.user.profilepicture;
@@ -277,32 +351,39 @@ app.post('/profile/update', ensureAuthenticated, upload.single('profilePicture')
         profilePicture = `/img/profilePictures/${req.file.filename}`;
     }
 
-    try {
-        const updatedData = {};
-        if (name) updatedData.name = name;
-        if (profilePicture) updatedData.profilepicture = profilePicture;
-        if (newPassword) {
-            const hashedPassword = await bcrypt.hash(newPassword, 10);
-            updatedData.password = hashedPassword;
-        }
-
-        await userService.updateUser(userId, updatedData, (err, result) => {
+    const updatedData = {};
+    if (name) updatedData.name = name;
+    if (profilePicture) updatedData.profilepicture = profilePicture;
+    if (newPassword) {
+        bcrypt.hash(newPassword, 10, (err, hashedPassword) => {
             if (err) {
-                console.log('Erro ao atualizar perfil:', err);
-                res.status(500).send('Erro ao atualizar perfil');
-            } else {
+                console.error('Erro ao hashear nova senha:', err);
+                return res.status(500).send('Erro ao atualizar perfil');
+            }
+            updatedData.password = hashedPassword;
+            userService.updateUser(userId, updatedData, (err) => {
+                if (err) {
+                    console.error('Erro ao atualizar perfil:', err);
+                    return res.status(500).send('Erro ao atualizar perfil');
+                }
                 console.log('Perfil atualizado com sucesso');
                 res.redirect('/profile/' + userId);
-            }
+            });
         });
-    } catch (err) {
-        console.error(err);
-        res.status(500).send('Erro ao atualizar perfil');
+    } else {
+        userService.updateUser(userId, updatedData, (err) => {
+            if (err) {
+                console.error('Erro ao atualizar perfil:', err);
+                return res.status(500).send('Erro ao atualizar perfil');
+            }
+            console.log('Perfil atualizado com sucesso');
+            res.redirect('/profile/' + userId);
+        });
     }
 });
 
 app.get('/delete/:user_id', ensureAuthenticated, (req, res) => {
-    userService.deleteUser(req.params.user_id, (err, result) => {
+    userService.deleteUser(req.params.user_id, (err) => {
         if (err) {
             console.log('Erro ao deletar usuário:', err);
             res.status(500).send('An error occurred while deleting user');

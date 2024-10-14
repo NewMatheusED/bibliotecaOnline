@@ -32,6 +32,9 @@
                                 <li>
                                     <a href="/logout">Sair da conta</a>
                                 </li>
+                                <li>
+                                    <p>Tempo de sessão restante: <span id="session-time"></span></p>
+                                </li>
                             </ul>
                         </div><!--modalContent-->
                     </div><!--modal-->
@@ -49,8 +52,8 @@
     </div><!--container-->
 </nav>
 
-<script src="/js/jquery.js"></script>
-<script>
+<script nonce="<%= nonce %>" src="/js/jquery.js"></script>
+<script nonce="<%= nonce %>">
     $(document).ready(function() {
         $.ajax({
             url: '/header-data',
@@ -61,6 +64,7 @@
                 $('#user-email').text(data.email);
                 $('#user-privilege').text(data.privilege);
                 $('#edit-profile').attr('href', '/profile/' + data.id);
+                updateSessionTime(data.sessionRemainingTime);
                 if (data.privilege === 'admin') {
                     $('#admin-page').show();
                 }
@@ -91,9 +95,25 @@
         // Chama a função para gerar o breadcrumb
         generateBreadcrumb();
     });
+
+    // Função para atualizar o tempo de sessão
+    function updateSessionTime(remainingTime) {
+        const sessionTimeElement = document.getElementById('session-time');
+        setInterval(() => {
+            if (remainingTime > 0) {
+                remainingTime -= 1000;
+                const hours = Math.floor(remainingTime / 3600000);
+                const minutes = Math.floor((remainingTime % 3600000) / 60000);
+                const seconds = Math.floor((remainingTime % 60000) / 1000);
+                sessionTimeElement.innerText = `${hours}h ${minutes}m ${seconds}s`;
+            } else {
+                sessionTimeElement.innerText = 'Sessão expirada';
+            }
+        }, 1000);
+    }
 </script>
-<script>
+<script nonce="<%= nonce %>">
     $('.profile img').click(function() {
         $('.modal').slideToggle();
-    })
+    });
 </script>

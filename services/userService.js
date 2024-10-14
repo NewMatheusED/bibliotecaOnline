@@ -1,72 +1,82 @@
 const User = require('../models/user');
 
 module.exports = {
-  createUser: async function(name, email, password, callback) {
-    try {
-      const existingUser = await User.findOne({ where: { email } });
-      if (existingUser) {
-        return callback({ error: 'Usuário já cadastrado', errorCode: 1001 });
-      }
-      await User.create({ name, email, password, privilege: 'user', profilepicture: '/img/defaultUserProfile.png' });
-      callback(null);
-    } catch (err) {
-      callback(err);
-    }
+  createUser: function(name, email, password, callback) {
+    User.findOne({ where: { email } })
+      .then(existingUser => {
+        if (existingUser) {
+          return callback({ error: 'Usuário já cadastrado', errorCode: 1001 });
+        }
+        return User.create({ name, email, password, privilege: 'user', profilepicture: '/img/defaultUserProfile.png' });
+      })
+      .then(() => {
+        callback(null);
+      })
+      .catch(err => {
+        callback(err);
+      });
   },
 
-  listUsers: async function(callback) {
-    try {
-      const users = await User.findAll();
-      callback(null, users);
-    } catch (err) {
-      callback(err);
-    }
+  listUsers: function(callback) {
+    User.findAll()
+      .then(users => {
+        callback(null, users);
+      })
+      .catch(err => {
+        callback(err);
+      });
   },
 
-  getUser: async function(email, callback) {
-    try {
-      const user = await User.findOne({ where: { email } });
-      if (!user) {
-        return callback({ error: 'Usuário não encontrado', errorCode: 1002 });
-      }
-      callback(null, user);
-    } catch (err) {
-      callback(err);f
-    }
+  getUser: function(email, callback) {
+    User.findOne({ where: { email } })
+      .then(user => {
+        if (!user) {
+          return callback({ error: 'Usuário não encontrado', errorCode: 1002 });
+        }
+        callback(null, user);
+      })
+      .catch(err => {
+        callback(err);
+      });
   },
 
-  findById: async function(id, callback) {
-    try {
-      const user = await User.findByPk(id);
-      callback(null, user);
-    } catch (err) {
-      callback(err);
-    }
+  findById: function(id, callback) {
+    User.findByPk(id)
+      .then(user => {
+        callback(null, user);
+      })
+      .catch(err => {
+        callback(err);
+      });
   },
 
-  updatePrivilege: async function(email, privilege, callback) {
-    try {
-      await User.update({ privilege }, { where: { email } });
-      callback(null);
-    } catch (err) {
-      callback(err);
-    }
+  updatePrivilege: function(email, privilege, callback) {
+    User.update({ privilege }, { where: { email } })
+      .then(() => {
+        callback(null);
+      })
+      .catch(err => {
+        callback(err);
+      });
   },
 
-  deleteUser: async function(id, callback) {
-    try {
-      await User.destroy({ where: { id } });
-      callback(null);
-    } catch (err) {
-      callback(err);
-    }
+  deleteUser: function(id, callback) {
+    User.destroy({ where: { id } })
+      .then(() => {
+        callback(null);
+      })
+      .catch(err => {
+        callback(err);
+      });
   },
 
-  updateUser: async function(id, updatedData, callback) {
-    try {
-      await User.update(updatedData, { where: { id } });
-    } catch (err) {
-      callback(err);
-    }
+  updateUser: function(id, updatedData, callback) {
+    User.update(updatedData, { where: { id } })
+      .then(() => {
+        callback(null);
+      })
+      .catch(err => {
+        callback(err);
+      });
   }
 };

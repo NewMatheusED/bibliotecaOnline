@@ -1,6 +1,6 @@
 const fs = require('fs');
 const postgres = require('postgres');
-require('pg')
+require('pg');
 require('dotenv').config();
 
 let { PGHOST, PGDATABASE, PGUSER, PGPASSWORD, ENDPOINT_ID } = process.env;
@@ -22,7 +22,7 @@ async function getPgVersion() {
     const result = await sql`select version()`;
     console.log(result);
 }
-  
+
 getPgVersion();
 
 fs.readFile('setup.sql', 'utf8', async (err, data) => {
