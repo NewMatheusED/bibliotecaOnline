@@ -10,6 +10,10 @@ Este projeto é uma aplicação web que permite aos usuários pesquisar livros u
 - **Armazenamento de livros**: Os usuários podem escolher livros dos resultados da pesquisa para guardar em uma base de dados local. Os livros guardados podem ser visualizados em uma página separada.
 - **Redirecionamento para a página inicial**: A partir da página de livros guardados, os usuários podem voltar para a página inicial para realizar uma nova pesquisa.
 - **Lembrar última pesquisa**: A aplicação agora lembra a última pesquisa realizada pelo usuário, mesmo após guardar um livro ou visitar a página de livros guardados.
+- **Atualização de perfil**: Os usuários podem atualizar suas informações de perfil, incluindo a senha.
+- **Deleção de usuários**: Os administradores podem deletar usuários da aplicação.
+- **Deleção de livros**: Os usuários podem deletar livros que foram guardados na base de dados local.
+- **Autenticação de usuários**: A aplicação utiliza autenticação para proteger rotas sensíveis.
 
 ## Tecnologias Utilizadas
 
@@ -22,6 +26,9 @@ Este projeto é uma aplicação web que permite aos usuários pesquisar livros u
 - **Hash de Senha**: bcrypt.js para hash e verificação de senha
 - **Gerenciamento de Sessão**: express-session para gerenciar sessões de usuário
 - **Validação de Dados**: express-validator para validar e sanitizar dados de entrada
+- **Segurança**: Helmet para configurar cabeçalhos HTTP relacionados à segurança
+- **Upload de Arquivos**: Multer para upload de arquivos
+- **Deploy**: Vercel para deploy da aplicação
 
 ## Configuração
 
@@ -35,6 +42,7 @@ PGDATABASE='your_postgresql_database'
 PGUSER='your_postgresql_username'
 PGPASSWORD='your_postgresql_password'
 ENDPOINT_ID='your_endpoint_id'
+PORT=3000
 ```
 
 ## Como Executar o Projeto
