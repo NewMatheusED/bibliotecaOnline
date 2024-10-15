@@ -1,5 +1,55 @@
 <link rel="stylesheet" href="/css/header.css">
 <header>
+    <div class="hamburger">
+        <input type="checkbox" id="menu-toggle">
+        <svg viewBox="0 0 32 32">
+            <path class="line line-top-bottom" d="M27 10 13 10C10.8 10 9 8.2 9 6 9 3.5 10.8 2 13 2 15.2 2 17 3.8 17 6L17 26C17 28.2 18.8 30 21 30 23.2 30 25 28.2 25 26 25 23.8 23.2 22 21 22L7 22"></path>
+            <path class="line" d="M7 16 27 16"></path>
+        </svg>
+    </div>
+    
+    <div class="overlay"></div>
+    
+    <div class="sidebar">
+        <div class="user-info">
+            <div class="profilePictureMobile">
+                <img id="profile-picture-mobile" src="">
+            </div><!--profilePictureMobile-->
+            <div class="info">
+                <h3 id="user-name-mobile"></h3>
+                <p id="user-privilege-mobile"></p>
+                <div class="sessionTime">
+                    <p><i class="fa-regular fa-clock"></i> <span id="session-time-mobile"></span></p>
+                </div>
+            </div><!--info-->
+        </div><!--user-info-->
+        <h3>General</h3>
+        <nav class="sidebar-menu">
+            <ul>
+                <li>
+                    <i class="fa-solid fa-pencil"></i>
+                    <a id="edit-profile" href="#">Editar perfil</a>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </li>
+                <li id="admin-page" style="display: none;">
+                    <i class="fa-solid fa-crown"></i>
+                    <a href="/admin">Página de administrador</a>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </li>
+                <li>
+                    <i class="fa-solid fa-book"></i>
+                    <a href="/livrosGuardados">Ver livros guardados</a>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </li>
+                <li>
+                    <i class="fa-solid fa-sign-out"></i>
+                    <a href="/logout">Sair da conta</a>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    
     <div class="container">
         <div class="flexHeader">
             <div class="logo">
@@ -10,7 +60,7 @@
                     <input type="text" name="q" placeholder="Search books">
                     <button><i class="fa-solid fa-magnifying-glass"></i></button>
                 </form>
-                <form action="/livrosGuardados">
+                <form class="livrosGuardados" action="/livrosGuardados">
                     <input type="submit" value="Ver livros guardados">
                 </form>
             </div><!--search-->
@@ -60,9 +110,12 @@
             method: 'GET',
             success: function(data) {
                 $('#profile-picture').attr('src', data.profilePicture);
+                $('#profile-picture-mobile').attr('src', data.profilePicture);
                 $('#user-name').text(data.name);
+                $('#user-name-mobile').text(data.name);
                 $('#user-email').text(data.email);
                 $('#user-privilege').text(data.privilege);
+                $('#user-privilege-mobile').text(data.privilege);
                 $('#edit-profile').attr('href', '/profile/' + data.id);
                 updateSessionTime(data.sessionRemainingTime);
                 if (data.privilege === 'admin') {
@@ -99,6 +152,7 @@
     // Função para atualizar o tempo de sessão
     function updateSessionTime(remainingTime) {
         const sessionTimeElement = document.getElementById('session-time');
+        const sessionTimeMobileElement = document.getElementById('session-time-mobile');
         setInterval(() => {
             if (remainingTime > 0) {
                 remainingTime -= 1000;
@@ -106,8 +160,10 @@
                 const minutes = Math.floor((remainingTime % 3600000) / 60000);
                 const seconds = Math.floor((remainingTime % 60000) / 1000);
                 sessionTimeElement.innerText = `${hours}h ${minutes}m ${seconds}s`;
+                sessionTimeMobileElement.innerText = `${hours}h ${minutes}m ${seconds}s`;
             } else {
                 sessionTimeElement.innerText = 'Sessão expirada';
+                sessionTimeMobileElement.innerText = 'Sessão expirada';
             }
         }, 1000);
     }
@@ -115,5 +171,29 @@
 <script nonce="<%= nonce %>">
     $('.profile img').click(function() {
         $('.modal').slideToggle();
+    });
+</script>
+<script nonce="<%= nonce %>">
+    $(document).ready(function() {
+        // Controle do menu mobile
+        $('.hamburger').click(function() {
+            const checkbox = $('.hamburger input');
+            checkbox.prop('checked', !checkbox.prop('checked')).change();
+            if (checkbox.is(':checked')) {
+            $('body').addClass('menu-open');
+            } else {
+            $('body').removeClass('menu-open');
+            }
+        });
+
+        // Fechar o menu ao clicar no overlay
+        $('.overlay').click(function() {
+            $('.hamburger input').prop('checked', false).change();
+        });
+
+        // Fechar o menu ao clicar em um link
+        $('.sidebar-menu a').click(function() {
+            $('.hamburger input').prop('checked', false).change();
+        });
     });
 </script>

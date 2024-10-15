@@ -6,7 +6,7 @@ section.books {
             flex-wrap: wrap;
             gap: 20px;
             .book {
-                width: calc(100% / 4 - 20px);
+                width: calc(100% / 4 - 15px);
                 background-color: #ffffffc0;
                 padding: 10px;
                 border-radius: 10px;
@@ -51,5 +51,29 @@ section.books {
                 }
             }
         }
+    }
+}
+
+@media screen and (max-width: 992px) {
+    section.books {
+        .container {
+            .allBooks {
+                .book {
+                    width: calc(100% / 3 - 14px);
+                }
+            }
+        }
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .book {
+        width: calc(100% / 2 - 10px) !important;
+    }
+}
+
+@media screen and (max-width: 576px) {
+    .book {
+        width: calc(100%) !important;
     }
 }
