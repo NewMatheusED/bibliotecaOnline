@@ -30,6 +30,7 @@
                             <th>Email</th>
                             <th>Nível de acesso</th>
                             <th>Mudar nível de acesso para:</th>
+                            <th>Mudar senha</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -39,7 +40,6 @@
                                     <td>
                                         <div class="functions">
                                             <img src="<%= user.profilepicture %>" alt="Foto de Perfil">
-                                            <a href="/profile/<%= user.id %>"><i class="fa-solid fa-pencil"></i></a>
                                             <a href="/delete/<%= user.id %>"><i class="fa-solid fa-trash"></i></a>
                                         </div><!-- functions -->
                                     </td>
@@ -53,6 +53,7 @@
                                             <option value="user" <%= user.privilege == 'user' ? 'selected' : '' %>>User</option>
                                         </select>
                                     </td>
+                                    <td><a href="/changePassPage?user=<%= user.id %>">Mudar senha</a></td>
                                 </tr>
                             <% } %>
                         <% }) %>
@@ -61,7 +62,7 @@
             </div><!-- col -->
         </div><!-- container -->
     </section>
-<script nonce="<%= nonce %>">
+<script >
     function updatePrivilege(email, newPrivilege, userId) {
         fetch('/updatePrivilege', {
             method: 'POST',

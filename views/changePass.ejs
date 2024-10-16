@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mudar senha</title>
+</head>
+<body>
+    <h1>Mudar senha de <%= userInfo.name %></h1>
+    <form method="post">
+        <label for="newPassword">Nova Senha:</label>
+        <input type="password" id="newPass" name="newPass" placeholder="Nova senha">
+        <button type="submit">Atualizar</button>
+    </form>
+    <script>
+const form = document.querySelector('form');
+form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const newPass = document.getElementById('newPass').value;
+    const response = await fetch('/changePass', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            newPass: newPass,
+            user: '<%= userInfo.id %>'
+        })
+    });
+    const data = await response.json();
+    if (data.success) {
+        alert('Senha atualizada com sucesso!');
+        window.location.href = '/admin';
+    } else {
+        alert('Erro ao atualizar a senha');
+    }
+});
+    </script>
+</body>
+</html>

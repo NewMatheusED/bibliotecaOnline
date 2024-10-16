@@ -28,10 +28,10 @@
             <ul>
                 <li>
                     <i class="fa-solid fa-pencil"></i>
-                    <a id="edit-profile" href="#">Editar perfil</a>
+                    <a id="edit-profile-mobile" href="#">Editar perfil</a>
                     <i class="fa-solid fa-chevron-right"></i>
                 </li>
-                <li id="admin-page" style="display: none;">
+                <li id="admin-page-mobile" style="display: none;">
                     <i class="fa-solid fa-crown"></i>
                     <a href="/admin">Página de administrador</a>
                     <i class="fa-solid fa-chevron-right"></i>
@@ -102,8 +102,8 @@
     </div><!--container-->
 </nav>
 
-<script nonce="<%= nonce %>" src="/js/jquery.js"></script>
-<script nonce="<%= nonce %>">
+<script  src="/js/jquery.js"></script>
+<script >
     $(document).ready(function() {
         $.ajax({
             url: '/header-data',
@@ -117,9 +117,12 @@
                 $('#user-privilege').text(data.privilege);
                 $('#user-privilege-mobile').text(data.privilege);
                 $('#edit-profile').attr('href', '/profile/' + data.id);
+                $('#edit-profile-mobile').attr('href', '/profile/' + data.id);
+
                 updateSessionTime(data.sessionRemainingTime);
                 if (data.privilege === 'admin') {
                     $('#admin-page').show();
+                    $('#admin-page-mobile').show();
                 }
             },
             error: function(err) {
@@ -168,12 +171,12 @@
         }, 1000);
     }
 </script>
-<script nonce="<%= nonce %>">
+<script >
     $('.profile img').click(function() {
         $('.modal').slideToggle();
     });
 </script>
-<script nonce="<%= nonce %>">
+<script >
     $(document).ready(function() {
         // Controle do menu mobile
         $('.hamburger').click(function() {

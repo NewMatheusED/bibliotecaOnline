@@ -14,35 +14,11 @@ const multer = require('multer');
 const axios = require('axios');
 const fs = require('fs');
 const pgSession = require('connect-pg-simple')(session);
-const helmet = require('helmet');
-const crypto = require('crypto');
 require('pg');
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Middleware para gerar um nonce no res.locals
-app.use((req, res, next) => {
-    res.locals.nonce = crypto.randomBytes(16).toString('base64');
-    next();
-});
-
-// Configurar o helmet para usar o nonce
-app.use(helmet({
-    contentSecurityPolicy: {
-        directives: {
-            defaultSrc: ["'self'"],
-            scriptSrc: ["'self'", (req, res) => `'nonce-${res.locals.nonce}'`],
-            styleSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com"],
-            imgSrc: ["'self'", "data:", "https://www.googleapis.com", "https://books.google.com"],
-            connectSrc: ["'self'"], // Permitir conexões com a mesma origem
-            fontSrc: ["'self'", "https:", "data:"],
-            objectSrc: ["'none'"],
-            scriptSrcAttr: [(req, res) => `'nonce-${res.locals.nonce}'`],
-            upgradeInsecureRequests: [],
-        },
-    },
-}));
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -318,18 +294,7 @@ app.post('/updatePrivilege', ensureAuthenticated, (req, res) => {
 
 app.get('/profile/:user_id', ensureAuthenticated, (req, res) => {
     if (req.user.id != req.params.user_id) {
-        if (req.user.privilege !== 'admin') {
-            renderMainPage(req, res, req.user, 'Você não tem permissão para acessar essa página');
-        } else {
-            userService.findById(req.params.user_id, (err, user) => {
-                if (err) {
-                    console.log('Erro ao buscar usuário:', err);
-                    res.status(500).send('An error occurred while fetching user');
-                } else {
-                    res.render('profile', { user: user });
-                }
-            });
-        }
+        renderMainPage(req, res, req.user, 'Você não tem permissão para acessar essa página');
     } else {
         userService.findById(req.params.user_id, (err, user) => {
             if (err) {
@@ -354,20 +319,35 @@ app.post('/profile/update', ensureAuthenticated, upload.single('profilePicture')
     const updatedData = {};
     if (name) updatedData.name = name;
     if (profilePicture) updatedData.profilepicture = profilePicture;
+
     if (newPassword) {
-        bcrypt.hash(newPassword, 10, (err, hashedPassword) => {
-            if (err) {
-                console.error('Erro ao hashear nova senha:', err);
+        userService.findById(userId, (err, user) => {
+            if (err || !user) {
+                console.error('Erro ao encontrar usuário:', err);
                 return res.status(500).send('Erro ao atualizar perfil');
             }
-            updatedData.password = hashedPassword;
-            userService.updateUser(userId, updatedData, (err) => {
-                if (err) {
-                    console.error('Erro ao atualizar perfil:', err);
-                    return res.status(500).send('Erro ao atualizar perfil');
+
+            bcrypt.compare(currentPassword, user.password, (err, isMatch) => {
+                if (err || !isMatch) {
+                    console.error('Senha atual incorreta:', err);
+                    return res.status(400).send('Senha atual incorreta');
                 }
-                console.log('Perfil atualizado com sucesso');
-                res.redirect('/profile/' + userId);
+
+                bcrypt.hash(newPassword, 10, (err, hashedPassword) => {
+                    if (err) {
+                        console.error('Erro ao hashear nova senha:', err);
+                        return res.status(500).send('Erro ao atualizar perfil');
+                    }
+                    updatedData.password = hashedPassword;
+                    userService.updateUser(userId, updatedData, (err) => {
+                        if (err) {
+                            console.error('Erro ao atualizar perfil:', err);
+                            return res.status(500).send('Erro ao atualizar perfil');
+                        }
+                        console.log('Perfil atualizado com sucesso');
+                        res.redirect('/profile/' + userId);
+                    });
+                });
             });
         });
     } else {
@@ -392,6 +372,46 @@ app.get('/delete/:user_id', ensureAuthenticated, (req, res) => {
             res.redirect('/admin');
         }
     });
+});
+
+app.get('/changePassPage', ensureAuthenticated, (req, res) => {
+    if (req.user.privilege != 'admin') {
+        renderMainPage(req, res, req.user, 'Você não tem permissão para acessar essa página');
+    } else {
+        let userChange = req.query.user;
+        userService.findById(userChange, (err, user) => {
+            if (err) {
+                console.log('Erro ao buscar usuário:', err);
+                res.status(500).send('An error occurred while fetching user');
+            } else {
+                res.render('changePass', { userChange: userChange, userInfo: user.dataValues });
+            }
+        });
+    }
+});
+
+app.post('/changePass', ensureAuthenticated, (req, res) => {
+    if (req.user.privilege != 'admin') {
+        renderMainPage(req, res, req.user, 'Você não tem permissão para acessar essa página');
+    } else {
+        const { user, newPass } = req.body;
+        bcrypt.hash(newPass, 10, (err, hash) => {
+            if (err) {
+                console.log('Erro ao criptografar senha:', err);
+                res.status(500).send({ success: false, message: 'An error occurred while encrypting password' });
+            } else {
+                userService.updateUser(user, { password: hash }, (err) => {
+                    if (err) {
+                        console.log('Erro ao atualizar senha:', err);
+                        res.status(500).send({ success: false, message: 'An error occurred while updating password' });
+                    } else {
+                        console.log('Senha atualizada com sucesso');
+                        res.send({ success: true });
+                    }
+                });
+            }
+        });
+    }
 });
 
 module.exports = app;
